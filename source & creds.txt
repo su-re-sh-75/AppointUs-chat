@@ -1,0 +1,16 @@
+
+Source:
+1. Auth, realtime chat, 3 months ago
+    - https://www.youtube.com/watch?v=FR50mJwN3p4
+    - https://github.com/neszen/chat_app
+
+2. Auth, OAuth, realtime chat, Full fledged with grp chat, sending files, 10 months ago
+    - https://www.youtube.com/playlist?list=PL5E1F5cTSTtRSP3Qb8-gZ-Hm5AXp3VKvu
+    - https://github.com/andyjud/realtime-chat
+
+3. Auth, realtime chat, room type, not chat type, old 2022, 3 years ago 
+    - https://www.youtube.com/watch?v=SF1k_Twr9cg
+    - https://github.com/SteinOveHelset/djangochat
+
+4. No authentication, only websockets
+- https://github.com/tomitokko/django-chat-app/blob/main/chat/views.py
