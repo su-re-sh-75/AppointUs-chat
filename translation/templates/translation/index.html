@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Realtime Translation</title>
-    <link rel="stylesheet" href="{% static 'src/output.css' %}">
+    <link rel="stylesheet" href="{% static 'translation/src/output.css' %}">
 </head>
-<body>
+<body class="bg-gray-200">
     <h1 class="text-red-500 text-2xl font-bold">Realtime Translation </h1>
     <button class="btn btn-soft">Default</button>
     <button class="btn btn-soft btn-primary">Primary</button>
@@ -17,6 +17,7 @@
     <button class="btn btn-soft btn-success">Success</button>
     <button class="btn btn-soft btn-warning">Warning</button>
     <button class="btn btn-soft btn-error">Error</button>
-    <script src="{% static 'js/flyonui.js' %}" defer></script>
+    <div class="btn btn-soft bg-pink-200 text-pink-500 hover:bg-pink-300">Buttons</div>
+    <script src="{% static 'translation/js/flyonui.js' %}"></script>
 </body>
 </html>

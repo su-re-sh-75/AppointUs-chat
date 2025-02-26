@@ -12,7 +12,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "tail": "npx tailwindcss -i ./static/src/input.css -o ./static/src/output.css --watch"
+    "tail": "npx tailwindcss -i ./translation/static/translation/src/input.css -o ./translation/static/translation/src/output.css --watch"
   },
   "keywords": [],
   "author": "",

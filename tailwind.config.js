@@ -1,8 +1,7 @@
  /** @type {import('tailwindcss').Config} */
  export default {
     content: [
-        "./templates/**/*.html", 
-        "./**/templates/**/*.html",
+        "./translation/templates/**/*.html",
         "./node_modules/flyonui/dist/js/*.js",
     ],
     theme: {
