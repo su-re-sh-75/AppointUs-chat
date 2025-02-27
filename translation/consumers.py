@@ -93,7 +93,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 print(f"Error saving file: {e}")
 
             # Save to the database
-            await sync_to_async(Message.objects.create)(
+            file_message = await sync_to_async(Message.objects.create)(
                 sender=sender,
                 receiver=receiver,
                 file=f"uploads/{file_name}",
@@ -107,6 +107,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "type": "file",
                     "file_url": f"/media/uploads/{file_name}",
                     "file_name": file_name,
+                    "file_size": file_message.file_size,  
+                    "file_extension": file_message.file_extension,
                     "sender": sender.username,
                     "receiver": receiver.username,
                     "username": sender.username,
@@ -124,6 +126,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             "type": "file",
             "file_url": event.get("file_url", ""),
             "file_name": event.get("file_name", ""),
+            "file_size": event.get("file_size", ""),
+            "file_extension": event.get("file_extension", ""),
             "sender": event.get("sender", "UnknownSender"), 
             "receiver": event.get("receiver", "UnknownReceiver"),
             "username": event.get("username", ""),

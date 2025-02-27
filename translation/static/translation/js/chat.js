@@ -200,6 +200,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 console.error("No active chat selected");
             }
         } else if(data.type === "file"){
+            console.log(data)
             const chatbox = document.querySelector("#chatbox");
             const fileName = data.file_name;
             const messageTime = new Date(data.senttime).toLocaleTimeString([], {
@@ -207,17 +208,47 @@ document.addEventListener('DOMContentLoaded', function(){
                 minute: '2-digit',
                 hour12: true
             });
-            
+            const fileSize = data.file_size;
+            const fileExtension = data.file_extension;
+
             const div = document.createElement("div");
             div.className = "chat " + (data.username === currentUser ? "chat-sender" : "chat-receiver");
-            div.innerHTML = `
-                <div class="chat-bubble">
-                    <button class="border-base-100 w-52 overflow-hidden rounded-md border" aria-label="Image Button">
-                        <img class="w-full" src="/media/uploads/${fileName}" alt="Image attachment" />
-                    </button>
-                </div>
-                <time class="text-base-content/80 chat-footer">${messageTime}</time>
-            `;
+            const imageExtensions = ["JPEG", "JPG", "PNG", "GIF", "SVG", "WEBP", "AVIF"];
+            if (imageExtensions.includes(fileExtension.toUpperCase())) {
+                div.innerHTML = `
+                    <div class="chat-bubble">
+                        <button class="border-base-100 w-52 overflow-hidden rounded-md border" aria-label="Image Button">
+                            <img class="w-full" src="/media/uploads/${fileName}" alt="Image attachment" />
+                        </button>
+                    </div>
+                    <time class="text-base-content/80 chat-footer">${messageTime}</time>
+                `;    
+            } else {
+                div.innerHTML = `
+                    <div class="chat-bubble flex flex-col gap-4">
+                        <div class="bg-base-100 rounded-md">
+                            <button class="flex items-center gap-2 px-3 py-2 max-sm:w-11/12">
+                                <div class="flex flex-col gap-2 max-sm:w-5/6">
+                                    <div class="flex items-center">
+                                        ${fileExtension.toUpperCase() === "PDF" ? '<span class="icon-[tabler--file-type-pdf] text-error me-2.5 size-5"></span>' : ''}
+                                        <span class="text-base-content/80 truncate font-medium">${fileName}</span>
+                                    </div>
+                                    <div class="text-base-content flex items-center gap-1 text-xs max-sm:hidden">
+                                        ${fileSize}
+                                        <span class="icon-[tabler--circle-filled] mt-0.5 size-1.5"></span>
+                                        ${fileExtension.toUpperCase()}
+                                    </div>
+                                </div>
+                                <a class="btn btn-text btn-circle" href="${data.file_url}" download>
+                                    <span class="icon-[tabler--download] text-base-content size-6"></span>
+                                </a>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            
             // <a href="${fileUrl}" target="_blank" class="text-blue-500">${fileName}</a>
 
             chatbox.appendChild(div);

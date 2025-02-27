@@ -137,14 +137,41 @@
 								<time class="text-base-content/80 chat-footer">{{ message.timestamp|date:"h:i A" }}</time>
 							</div>
 						{% elif message.file %}
-							<div class="chat {% if message.sender == request.user %} chat-sender {% else %} chat-receiver {% endif %}">
-								<div class="chat-bubble flex flex-col gap-4">
-									<button class="border-base-100 w-52 overflow-hidden rounded-md border" aria-label="Image Button">
-										<img class="w-full" src="{{ message.file.url }}" alt="Image attachment" />
-									</button>
-								</div>
-								<time class="text-base-content/80 chat-footer">{{ message.timestamp|date:"h:i A" }}</time>
-							</div>
+                            {% if message.is_image %}
+                                <div class="chat {% if message.sender == request.user %} chat-sender {% else %} chat-receiver {% endif %}">
+                                    <div class="chat-bubble flex flex-col gap-4">
+                                        <button class="border-base-100 w-52 overflow-hidden rounded-md border" aria-label="Image Button">
+                                            <img class="w-full" src="{{ message.file.url }}" alt="Image attachment" />
+                                        </button>
+                                    </div>
+                                    <time class="text-base-content/80 chat-footer">{{ message.timestamp|date:"h:i A" }}</time>
+                                </div>
+                            {% else %}
+                                <div class="chat chat-sender">
+                                    <div class="chat-bubble flex flex-col gap-4">
+                                        <div class="bg-base-100 rounded-md">
+                                            <button class="flex items-center gap-2 px-3 py-2 max-sm:w-11/12">
+                                                <div class="flex flex-col gap-2 max-sm:w-5/6">
+                                                    <div class="flex items-center">
+                                                        {% if message.file_extension == 'pdf' %}
+                                                            <span class="icon-[tabler--file-type-pdf] text-error me-2.5 size-5"></span>
+                                                        {% endif %}
+                                                        <span class="text-base-content/80 truncate font-medium">{{ message.filename }}</span>
+                                                    </div>
+                                                    <div class="text-base-content flex items-center gap-1 text-xs max-sm:hidden">
+                                                        {{ message.file_size }}
+                                                        <span class="icon-[tabler--circle-filled] mt-0.5 size-1.5"></span>
+                                                        {{ message.file_extension|upper }}
+                                                    </div>
+                                                </div>
+                                                <a class="btn btn-text btn-circle" href="{{ message.file.url }}" download>
+                                                    <span class="icon-[tabler--download] text-base-content size-6"></span>
+                                                </a>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
 						{% endif %}
 					{% endfor %} 
 				{% elif room_name != request.user.username %}

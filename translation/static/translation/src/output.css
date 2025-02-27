@@ -635,6 +635,18 @@ html {
   --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m5 12l5 5L20 7'/%3E%3C/svg%3E");
 }
 
+.icon-\[tabler--circle-filled\] {
+  --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cg fill='none' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Cpath d='M0 0h24v24H0z'/%3E%3Cpath fill='black' d='M7 3.34a10 10 0 1 1-4.995 8.984L2 12l.005-.324A10 10 0 0 1 7 3.34'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.icon-\[tabler--download\] {
+  --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 11l5 5l5-5m-5-7v12'/%3E%3C/svg%3E");
+}
+
+.icon-\[tabler--file-type-pdf\] {
+  --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cg fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Cpath d='M14 3v4a1 1 0 0 0 1 1h4'/%3E%3Cpath d='M5 12V5a2 2 0 0 1 2-2h7l5 5v4M5 18h1.5a1.5 1.5 0 0 0 0-3H5v6m12-3h2m1-3h-3v6m-6-6v6h1a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
 .icon-\[tabler--logout\] {
   --svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cg fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Cpath d='M14 8V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2v-2'/%3E%3Cpath d='M9 12h12l-3-3m0 6l3-3'/%3E%3C/g%3E%3C/svg%3E");
 }
@@ -5574,6 +5586,14 @@ textarea:focus-visible {
   margin-top: 0.5rem;
 }
 
+.me-2\.5 {
+  margin-inline-end: 0.625rem;
+}
+
+.mt-0\.5 {
+  margin-top: 0.125rem;
+}
+
 .block {
   display: block;
 }
@@ -5635,6 +5655,16 @@ textarea:focus-visible {
 .size-\[2\.125rem\] {
   width: 2.125rem;
   height: 2.125rem;
+}
+
+.size-1\.5 {
+  width: 0.375rem;
+  height: 0.375rem;
+}
+
+.size-6 {
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
 .\!h-2\.5 {
@@ -5817,6 +5847,10 @@ textarea:focus-visible {
 
 .gap-4 {
   gap: 1rem;
+}
+
+.gap-1 {
+  gap: 0.25rem;
 }
 
 .gap-x-1 {
@@ -6688,6 +6722,20 @@ textarea:focus-visible {
 
 .selected.combo-box-selected\:block {
   display: block;
+}
+
+@media not all and (min-width: 640px) {
+  .max-sm\:hidden {
+    display: none;
+  }
+
+  .max-sm\:w-11\/12 {
+    width: 91.666667%;
+  }
+
+  .max-sm\:w-5\/6 {
+    width: 83.333333%;
+  }
 }
 
 @media (min-width: 640px) {
