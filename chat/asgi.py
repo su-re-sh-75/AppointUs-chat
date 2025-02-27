@@ -16,9 +16,6 @@ from translation import routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'chat.settings')
 
-
-# Initialize the ASGI application
-
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
     "websocket": AuthMiddlewareStack(

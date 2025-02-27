@@ -13,20 +13,21 @@ def login_page(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            messages.success(request, 'Login successful!')
+            messages.success(request, 'Login successful!', 'info')
             return redirect(f'/chat/{username}/')
         else:
-            messages.error(request, 'Invalid email or password. Please try again.')
+            messages.error(request, 'Invalid email or password', 'error')
 
         if request.user.is_authenticated:
             return redirect(f'/chat/{request.user.username}/')
-    return render(request,'translation/login.html')
+        
+    return render(request,'users/login.html')
 
 
 @login_required
 def logout_page(request):
     logout(request)  
-    messages.success(request, 'You have been logged out successfully.') 
+    messages.success(request, 'Logged out successfully', 'info') 
     return redirect('/')
 
 
@@ -34,27 +35,22 @@ def signup_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         username = request.POST.get('username')
-        password1 = request.POST.get('password')
-        confirm_password = request.POST.get('confirm_password')
+        password = request.POST.get('password')
 
-        # Check if passwords match
-        if password1 != confirm_password:
-            messages.error(request, 'Passwords do not match. Please try again.')
-            return render(request, 'translation/signup.html')
-
-        # Check if email is already taken
-        if User.objects.filter(email=email).exists():
-            messages.error(request, 'Email is already in use. Please try another.')
-            return render(request, 'translation/signup.html')
-
-        # Create the new user
-        user = User.objects.create_user(username=username, 
-                                        email=email,
-                                        password=password1)
-        user.save()
-        messages.success(request, 'Signup successful! You can now log in.')
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Username already exists', 'error')
+            return redirect('users:signup')
+        elif User.objects.filter(email=email).exists():
+            messages.error(request, 'Email already exists', 'error')
+            return redirect('users:signup')
+        else:
+            user = User.objects.create_user(username=username, email=email, password=password)
+            user.save()
+            messages.success(request, 'Account created successfully', 'info')
+            # return redirect('users:login')
+        
+        login(request, user)
         return redirect(f'/chat/{request.user.username}')
-    if request.user.is_authenticated:
-        return redirect(f'/chat/{request.user.username}') 
-    return render(request, 'translation/signup.html')
+    
+    return render(request, 'users/signup.html')
 

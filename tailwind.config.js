@@ -2,6 +2,7 @@
  export default {
     content: [
         "./translation/templates/**/*.html",
+        "./users/templates/**/*.html",
         "./node_modules/flyonui/dist/js/*.js",
     ],
     theme: {
