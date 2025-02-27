@@ -1,6 +1,15 @@
+Staff:
+    username: sureshadmin
+    password: admin123
+Normal:
+    suresh
+    suresh
+
+    karthi
+    karthi
 
 Source:
-1. Auth, realtime chat, 3 months ago
+1. Following, Auth, realtime chat, 3 months ago
     - https://www.youtube.com/watch?v=FR50mJwN3p4
     - https://github.com/neszen/chat_app
 

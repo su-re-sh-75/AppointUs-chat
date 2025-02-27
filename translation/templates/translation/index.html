@@ -4,20 +4,21 @@
 <head class="scroll-smooth">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Realtime Translation</title>
+    <title>{% block title %}Realtime Translation Chat{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'translation/src/output.css' %}">
 </head>
-<body class="bg-gray-200">
-    <h1 class="text-red-500 text-2xl font-bold">Realtime Translation </h1>
-    <button class="btn btn-soft">Default</button>
-    <button class="btn btn-soft btn-primary">Primary</button>
-    <button class="btn btn-soft btn-secondary">Secondary</button>
-    <button class="btn btn-soft btn-accent">Accent</button>
-    <button class="btn btn-soft btn-info">Info</button>
-    <button class="btn btn-soft btn-success">Success</button>
-    <button class="btn btn-soft btn-warning">Warning</button>
-    <button class="btn btn-soft btn-error">Error</button>
-    <div class="btn btn-soft bg-pink-200 text-pink-500 hover:bg-pink-300">Buttons</div>
+<body class="flex flex-col items-center justify-center h-screen w-full space-y-16" style="
+background: radial-gradient(at 55.75431050925419% 20.083332061767578%, #f7e2e2 0px, transparent 50%), radial-gradient(at 86.68103464718523% 4.874998728434245%, #61a4bc 0px, transparent 50%), radial-gradient(at 46.37931050925419% 100%, #5b7db1 0px, transparent 50%), radial-gradient(at 5.107758785116261% 9.458332061767578%, #ad98ea 0px, transparent 50%), #f7e2e2;
+">
+    <div id="title-container" class="h-1/4">
+        <p class="text-8xl py-2 font-bold bg-gradient-to-br from-slate-800 via-violet-500 to-zinc-400 bg-clip-text text-transparent">Real-Time Translation Chat</p>
+        <p class="text-4xl py-2 bg-violet-500 bg-clip-text text-transparent text-center">for instant multilingual support, ensuring seamless communication</p>
+    </div>
+
+    <div class="flex gap-4 justify-center">
+        <a href="{% url 'users:signup' %}" class="btn btn-soft btn-primary px-4 w-28 h-12">Signup</a>
+        <a href="{% url 'users:login' %}" class="btn btn-soft btn-primary px-4 w-28 h-12">Login</a>
+    </div>
     <script src="{% static 'translation/js/flyonui.js' %}"></script>
 </body>
 </html>

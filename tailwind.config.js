@@ -11,4 +11,11 @@
         require("flyonui"),
         require("flyonui/plugin"),
     ],
+    flyonui: {
+      themes: true,
+      darkTheme: "dark",
+      base: true,
+      styled: true,
+      utils: true, 
+    }
   }
