@@ -48,7 +48,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             username = data.get("username", "")
             room_name = data.get("room_name", "")
-            sender = self.scope['user']  
+            sender = self.scope['user']
             receiver = await self.get_receiver_user()
             data['sender'] = sender
             data['receiver'] = receiver
@@ -57,9 +57,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 message = data.get("message", "")
                 await self.save_message(sender, receiver, message)
 
-                print(f"Received: message={message}, username={username}, room_name={room_name}, senttime={sent_time}")
-
-                # Broadcast text message to group
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
@@ -72,62 +69,52 @@ class ChatConsumer(AsyncWebsocketConsumer):
                         "senttime": sent_time,
                     }
                 )
-            
-            elif message_type == "file":
-                await self.save_file(data)
-                file_name = data.get("file_name")
 
-                print(f"File received: {file_name} from {username} in {room_name}")
-
-                # Broadcast file message to group
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        "type": "file",
-                        "file_url": f"/media/uploads/{file_name}",
-                        "file_name": file_name,
-                        "sender": sender.username,
-                        "receiver": receiver.username,
-                        "username": username,
-                        "room_name": room_name,
-                        "senttime": sent_time,
-                    }
-                )
+            elif message_type == "files":  # New handling for multiple files
+                await self.save_files(data["files"], sender, receiver, room_name, sent_time)
 
         except json.JSONDecodeError:
             print("Invalid JSON received.")
 
-
-    async def save_file(self, data):
-        file_data = data["file"]
-        file_name = data["file_name"]
-        file_extension = file_name.split(".")[-1]
-
-        try:
-            sender = await get_user(data["sender"])
-            receiver = await get_user(data["receiver"])
-        except User.DoesNotExist as e:
-            print(f"User not found: {e}")
-            return
-        
-        file_message = await sync_to_async(Message.objects.create)(
-            sender=sender,
-            receiver=receiver,
-            file=f"uploads/{file_name}",
-            message_type = 'file'
-        )
+    async def save_files(self, files, sender, receiver, room_name, sent_time):
         upload_dir = "media/uploads/"
-        save_path = os.path.join(upload_dir, file_name)
-
         os.makedirs(upload_dir, exist_ok=True)
 
-        decoded_file = base64.b64decode(file_data)
-        try:
-            with open(save_path, "wb") as f:
-                f.write(decoded_file)
-            print(f'File saved successfully: {save_path}')
-        except Exception as e:
-            print(f"Error saving file: {e}")
+        for file_data in files:
+            file_name = file_data["file_name"]
+            decoded_file = base64.b64decode(file_data["file"])
+            save_path = os.path.join(upload_dir, file_name)
+
+            try:
+                with open(save_path, "wb") as f:
+                    f.write(decoded_file)
+                print(f'File saved successfully: {save_path}')
+            except Exception as e:
+                print(f"Error saving file: {e}")
+
+            # Save to the database
+            await sync_to_async(Message.objects.create)(
+                sender=sender,
+                receiver=receiver,
+                file=f"uploads/{file_name}",
+                message_type="file"
+            )
+
+            # Send WebSocket event
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "file",
+                    "file_url": f"/media/uploads/{file_name}",
+                    "file_name": file_name,
+                    "sender": sender.username,
+                    "receiver": receiver.username,
+                    "username": sender.username,
+                    "room_name": room_name,
+                    "senttime": sent_time,
+                }
+            )
+
 
     async def text(self, event):
         await self.send(text_data=json.dumps(event))

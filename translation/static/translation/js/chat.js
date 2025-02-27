@@ -63,9 +63,9 @@ document.addEventListener('DOMContentLoaded', function(){
     document.querySelector("#submit_button").onclick = function (e) {
         var messageInput = document.querySelector("#my_input").value;
         var fileInput = document.querySelector("#file-upload");
-        var file = fileInput.files[0];
+        var files = fileInput.files;
     
-        if (messageInput.length == 0 && (!file || fileDisplay.innerHTML === '')) {
+        if (messageInput.length == 0 && (!files || fileDisplay.innerHTML === '')) {
             e.preventDefault();
             alert("Type a message or select a file");
         } else {
@@ -90,27 +90,36 @@ document.addEventListener('DOMContentLoaded', function(){
                 document.querySelector("#my_input").value = ""; 
             }
     
-            if (file) {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = function () {
-                    const base64FileData = reader.result.split(",")[1];
+            if (files.length > 0) {
+                let filePromises = [];
     
-                    const fileMessage = {
-                        type: "file",
-                        file: base64FileData,
-                        file_name: file.name,
+                for (let file of files) {
+                    let reader = new FileReader();
+                    let filePromise = new Promise((resolve) => {
+                        reader.onload = function () {
+                            resolve({
+                                file: reader.result.split(",")[1],
+                                file_name: file.name
+                            });
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                    filePromises.push(filePromise);
+                }
+    
+                Promise.all(filePromises).then((fileMessages) => {
+                    chatSocket.send(JSON.stringify({
+                        type: "files",
+                        files: fileMessages,  
                         username: currentUser,
                         room_name: roomName,
                         senttime: senttime,
-                    };
-    
-                    console.log("Sending File:", fileMessage);
-                    chatSocket.send(JSON.stringify(fileMessage));
+                    }));
     
                     fileInput.value = "";
                     fileDisplay.innerHTML = "";
-                };
+                    popover.classList.add('hidden');
+                });
             }
         }
     };
@@ -154,7 +163,6 @@ document.addEventListener('DOMContentLoaded', function(){
             scrollToBottom(100);
 
             // Update the last message in the sidebar
-            
             const chatEntry = document.querySelector(`a[data-id="${data.room_name}"]`);
             
             if (chatEntry) {
@@ -162,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 const lastMessageElement = chatEntry.querySelector("#last-message");
                 lastMessageElement.innerHTML = 
                     (data.username === currentUser ? "You: " : "") +
-                    data.message.substring(0, 20); // Truncate to 20 chars
+                    data.message.substring(0, 20); 
 
                 // Find and update the timestamp
                 const timestampElement = chatEntry.querySelector(".text-nowrap");
@@ -194,7 +202,12 @@ document.addEventListener('DOMContentLoaded', function(){
         } else if(data.type === "file"){
             const chatbox = document.querySelector("#chatbox");
             const fileName = data.file_name;
-
+            const messageTime = new Date(data.senttime).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+            
             const div = document.createElement("div");
             div.className = "chat " + (data.username === currentUser ? "chat-sender" : "chat-receiver");
             div.innerHTML = `
@@ -203,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function(){
                         <img class="w-full" src="/media/uploads/${fileName}" alt="Image attachment" />
                     </button>
                 </div>
-                <time class="text-base-content/80 chat-footer">${new Date(data.senttime).toLocaleTimeString()}</time>
+                <time class="text-base-content/80 chat-footer">${messageTime}</time>
             `;
             // <a href="${fileUrl}" target="_blank" class="text-blue-500">${fileName}</a>
 
