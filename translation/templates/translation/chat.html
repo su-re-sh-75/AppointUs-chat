@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{% static 'translation/src/output.css' %}">
 </head>
 <body class="w-full h-screen flex">
+	<div id="room-data" data-room-name="{{ room_name }}" data-current-user="{{ request.user.username }}"></div>
     <section id="sidebar" class="w-1/5 border-slate-100 border-r-2">
         <button type="button" class="btn btn-text max-sm:btn-square sm:hidden" aria-haspopup="dialog" aria-expanded="false" aria-controls="logo-sidebar" data-overlay="#logo-sidebar" >
             <span class="icon-[tabler--menu-2] size-5"></span>
@@ -35,7 +36,7 @@
 			
 							<!-- Message Content and Username -->
 							<div>
-								<p class="text-md font-semibold truncate">{{ item.user.username }}</p>
+								<p class="text-md font-semibold truncate">{{ item.user.username|title }}</p>
 
 								<!-- Last message preview -->
 								<div class="flex justify-between">
@@ -130,10 +131,21 @@
             <div id="chatbox" class="flex flex-col p-3 h-full bg-slate-100 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] flex-1 pb-16" data-theme="corporate">
                 {% if chats %} 
 					{% for message in chats %}
-						<div class="chat {% if message.sender == request.user %} chat-sender {% else %} chat-receiver {% endif %}">
-							<div class="chat-bubble">{{ message.content }}</div>
-							<time class="text-base-content/80 chat-footer">{{ message.timestamp|date:"h:i A" }}</time>
-						</div>
+						{% if message.content %}
+							<div class="chat {% if message.sender == request.user %} chat-sender {% else %} chat-receiver {% endif %}">
+								<div class="chat-bubble">{{ message.content }}</div>
+								<time class="text-base-content/80 chat-footer">{{ message.timestamp|date:"h:i A" }}</time>
+							</div>
+						{% elif message.file %}
+							<div class="chat {% if message.sender == request.user %} chat-sender {% else %} chat-receiver {% endif %}">
+								<div class="chat-bubble flex flex-col gap-4">
+									<button class="border-base-100 w-52 overflow-hidden rounded-md border" aria-label="Image Button">
+										<img class="w-full" src="{{ message.file.url }}" alt="Image attachment" />
+									</button>
+								</div>
+								<time class="text-base-content/80 chat-footer">{{ message.timestamp|date:"h:i A" }}</time>
+							</div>
+						{% endif %}
 					{% endfor %} 
 				{% elif room_name != request.user.username %}
                     <div id="no-messages" class="flex justify-center w-full">
@@ -152,29 +164,29 @@
 			<!-- input -->
 			{% if room_name != request.user.username %}
             <div class="flex space-x-2 m-4 sticky bottom-4 z-50">
-                <input type="text" placeholder="Message" class="input" data-theme="corporate" id="my_input"/>
-
-                <!-- File Upload Button (Icon) -->
-                <div class="relative inline-block">
-                    <label for="file-upload" class="cursor-pointer p-2 rounded-full text-accent hover:bg-accent hover:text-slate-50 flex items-center justify-center w-10 h-10">
-                        <input id="file-upload" type="file" class="hidden" name="attachments" multiple>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-paperclip"><path d="M13.234 20.252 21 12.3"/><path d="m16 6-8.414 8.586a2 2 0 0 0 0 2.828 2 2 0 0 0 2.828 0l8.414-8.586a4 4 0 0 0 0-5.656 4 4 0 0 0-5.656 0l-8.415 8.585a6 6 0 1 0 8.486 8.486"/></svg>
-                    </label>
-
-                    <!-- Popover -->
-                    <div id="file-popover" class="hidden absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-white shadow-lg rounded-lg p-3 border border-gray-200">
-                        <div class="flex justify-between items-center">
-                            <p class="text-sm text-gray-700 font-medium">Selected Files:</p>
-                            <button id="close-popover" class="text-gray-500 hover:text-red-500 text-lg">&times;</button>
-                        </div>
-                        <ul id="file-list" class="text-sm text-gray-600 mt-2"></ul>
-                    </div>
-                </div>
-
-                <button class="btn btn-accent" id="submit_button">
-                    Send
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-horizontal"><path d="M3.714 3.048a.498.498 0 0 0-.683.627l2.843 7.627a2 2 0 0 1 0 1.396l-2.842 7.627a.498.498 0 0 0 .682.627l18-8.5a.5.5 0 0 0 0-.904z"/><path d="M6 12h16"/></svg>
-                </button>
+                <input type="text" placeholder="Message" class="input flex-1" data-theme="corporate" id="my_input"/>
+				
+				<!-- File Upload Button (Icon) -->
+				<div class="relative inline-block">
+					<label for="file-upload" class="cursor-pointer p-2 rounded-full text-accent hover:bg-accent hover:text-slate-50 flex items-center justify-center w-10 h-10">
+						<input id="file-upload" type="file" class="hidden" name="attachments">
+						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-paperclip"><path d="M13.234 20.252 21 12.3"/><path d="m16 6-8.414 8.586a2 2 0 0 0 0 2.828 2 2 0 0 0 2.828 0l8.414-8.586a4 4 0 0 0 0-5.656 4 4 0 0 0-5.656 0l-8.415 8.585a6 6 0 1 0 8.486 8.486"/></svg>
+					</label>
+					
+					<!-- Popover -->
+					<div id="file-popover" class="hidden absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-white shadow-lg rounded-lg p-3 border border-gray-200">
+						<div class="flex justify-between items-center">
+							<p class="text-sm text-gray-700 font-medium">Selected Files:</p>
+							<button id="close-popover" class="text-gray-500 hover:text-red-500 text-lg">&times;</button>
+						</div>
+						<ul id="file-list" class="text-sm text-gray-600 mt-2"></ul>
+					</div>
+				</div>
+				
+				<button class="btn btn-accent" id="submit_button">
+					Send
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-horizontal"><path d="M3.714 3.048a.498.498 0 0 0-.683.627l2.843 7.627a2 2 0 0 1 0 1.396l-2.842 7.627a.498.498 0 0 0 .682.627l18-8.5a.5.5 0 0 0 0-.904z"/><path d="M6 12h16"/></svg>
+				</button>
             </div>
 			{% endif %}
           </main>
@@ -182,178 +194,7 @@
 
     {{slug|json_script:"room_slug"}}
 
-    
-    <script>
-        const fileInput = document.getElementById('file-upload');
-        const fileDisplay = document.getElementById('file-list');
-        const popover = document.getElementById('file-popover');
-        const closeBtn = document.getElementById('close-popover');
-
-        fileInput.addEventListener('change', function(event) {
-            const fileList = event.target.files;
-            fileDisplay.innerHTML = '';
-
-            if (fileList.length > 0) {
-                for (let file of fileList) {
-                    let listItem = document.createElement('li');
-                    listItem.textContent = file.name;
-                    fileDisplay.appendChild(listItem);
-                }
-                popover.classList.remove('hidden');
-            } else {
-                popover.classList.add('hidden');
-            }
-        });
-
-        // Close popover on "X" button click
-        closeBtn.addEventListener('click', function() {
-            popover.classList.add('hidden');
-            fileDisplay.innerHTML = '';
-        fileInput.value = '';
-        });
-    </script>
-  
-    <script>
-      const chatbox = document.querySelector("#chatbox");
-
-      // Function to scroll to the bottom of the chatbox
-      function scrollToBottom() {
-        chatbox.scrollTop = chatbox.scrollHeight;
-      }
-
-      // Scroll to bottom when the page is loaded
-      scrollToBottom();
-
-      const roomName = JSON.parse(
-        document.getElementById("room_slug").textContent
-      );
-      const chatSocket = new WebSocket(
-        "ws://" + window.location.host + "/ws/chat/{{ room_name }}/"
-      );
-
-      chatSocket.onopen = function (e) {
-        console.log("The connection was set up successfully!");
-      };
-      chatSocket.onclose = function (e) {
-        console.log("Something unexpected happened!" + e);
-      };
-
-      document.querySelector("#my_input").focus();
-      document.querySelector("#my_input").onkeyup = function (e) {
-        if (e.keyCode == 13) {
-          e.preventDefault();
-          document.querySelector("#submit_button").click();
-        }
-      };
-
-      document.querySelector("#submit_button").onclick = function (e) {
-        var messageInput = document.querySelector("#my_input").value;
-
-        if (messageInput.length == 0) {
-          alert("Add some input first or press the Send button!");
-        } else {
-			let now = new Date();
-			// let localTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString(); 
-			let senttime = new Date().toISOString();
-
-			console.log("Sending Message:", { 
-				message: messageInput,
-				username: "{{ request.user.username }}",
-				room_name: "{{ room_name }}",
-				senttime: senttime
-			});
-			chatSocket.send(
-            JSON.stringify({
-                message: messageInput,
-                username: "{{ request.user.username }}",
-                room_name: "{{ room_name }}",
-                senttime: senttime
-            })
-        );
-          document.querySelector("#my_input").value = ""; 
-        }
-      };
-
-      // Update the onmessage function to update the chat list
-      chatSocket.onmessage = function (e) {
-        const data = JSON.parse(e.data);
-
-        if (data.message && data.sender) {
-          // Display the new message in the chatbox
-			const chatbox = document.querySelector("#chatbox");
-			const noMessages = document.querySelector("#no-messages");
-			const messageTime = new Date(data.senttime).toLocaleTimeString([], {
-				hour: '2-digit',
-				minute: '2-digit',
-				hour12: true
-			});
-
-			console.log("Received Message:", { 
-				message: data.message,
-				username: data.username,
-				room_name: data.room_name,
-				senttime: data.senttime
-			});
-			if (noMessages) {
-				noMessages.style.display = "none";
-			}
-
-			const div = document.createElement("div");
-			div.className =
-				"chat " +
-				(data.sender === "{{ request.user.username }}"
-				? "chat-sender"
-				: "chat-receiver");
-			
-			div.innerHTML = `<div class="chat-bubble">${data.message}</div><time class="text-base-content/80 chat-footer">${messageTime}</time>`;
-			chatbox.appendChild(div);
-
-			// Scroll to the bottom of the chatbox
-			scrollToBottom();
-
-			// Update the last message in the sidebar
-			
-			const chatEntry = document.querySelector(`a[data-id="${data.room_name}"]`);
-			
-			if (chatEntry) {
-				// Find and update the last message preview
-				const lastMessageElement = chatEntry.querySelector("#last-message");
-				lastMessageElement.innerHTML = 
-					(data.username === "{{ request.user.username }}" ? "You: " : "") +
-					data.message.substring(0, 20); // Truncate to 20 chars
-
-				// Find and update the timestamp
-				const timestampElement = chatEntry.querySelector(".text-nowrap");
-				const messageTime = new Date(data.senttime).toLocaleTimeString([], {
-					hour: '2-digit',
-					minute: '2-digit',
-					hour12: true,
-					timeZone: "Asia/Kolkata"
-				});
-				timestampElement.textContent = messageTime;
-
-				// update the chats list sorting by the last message timestamp in descending order
-				const chats = document.querySelectorAll("#contact-list-item");
-				const chatsArray = Array.from(chats);
-				const chatsSorted = chatsArray.sort((a, b) => {
-					const aTime = a.querySelector("#msg-time").innerHTML;
-					const bTime = b.querySelector("#msg-time").innerHTML;
-					return aTime < bTime ? 1 : -1;
-				});
-
-				const contacts = document.querySelector("#contact-list");
-				contacts.innerHTML = "";
-				chatsSorted.forEach((chat) => {
-					contacts.appendChild(chat);
-				});
-			}else {
-				console.error("No active chat selected");
-			}
-        } else {
-          console.error("Message or sender data is missing:", data);
-        }
-      };
-    </script>
+    <script src="{% static 'translation/js/chat.js' %}"></script>
     <script src="{% static 'translation/js/flyonui.js' %}"></script>
 </body>
 </html>

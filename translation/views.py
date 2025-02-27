@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 from .models import Message
 from django.db.models import Q
 from datetime import datetime
+from channels.layers import get_channel_layer
+from django.http import HttpResponse
+from asgiref.sync import async_to_sync
 import pytz
 
 kolkata_tz = pytz.timezone("Asia/Kolkata")
@@ -11,7 +14,7 @@ kolkata_tz = pytz.timezone("Asia/Kolkata")
 def index(request):
     return render(request, "translation/index.html")
 
-@login_required
+@login_required(login_url='users:login')
 def chat_room(request, room_name):
     search_query = request.GET.get('search', '') 
     users = User.objects.exclude(id=request.user.id) 
@@ -50,3 +53,23 @@ def chat_room(request, room_name):
         'user_last_messages': user_last_messages,
         'search_query': search_query 
     })
+
+def chat_file_upload(request, room_name):
+    if request.FILES:
+        file = request.FILES['file']
+        receiver_user = User.objects.get(username=room_name)
+        message = Message.objects.create(
+            sender = request.user,
+            receiver = receiver_user,
+            file = file
+        )
+
+        channel_layer = get_channel_layer()
+        event = {
+            'type': 'message_handler',
+            'message_id': message.id
+        }
+        async_to_sync(channel_layer.group_send)(
+            room_name, event
+        )
+    return HttpResponse()

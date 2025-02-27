@@ -8,4 +8,5 @@ app_name = "translation"
 urlpatterns = [
     path('', views.index, name='home'),
     path('chat/<str:room_name>/', views.chat_room, name='chat'),
+    path('chat/fileupload/<str:room_name>/', views.chat_file_upload, name='chat-file-upload'),
 ]
