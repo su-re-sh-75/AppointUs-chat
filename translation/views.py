@@ -1,6 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from .models import Message
 from django.db.models import Q
 from datetime import datetime
@@ -8,6 +8,9 @@ from channels.layers import get_channel_layer
 from django.http import HttpResponse
 from asgiref.sync import async_to_sync
 import pytz
+from django.contrib import messages
+
+User = get_user_model()
 
 kolkata_tz = pytz.timezone("Asia/Kolkata")
 
@@ -73,3 +76,16 @@ def chat_file_upload(request, room_name):
             room_name, event
         )
     return HttpResponse()
+
+@login_required
+def update_language(request):
+    if request.method == "POST":
+        fav_language = request.POST.get("fav_language")
+        if fav_language:
+            request.user.fav_language = fav_language
+            request.user.save()
+            messages.success(request, "Language preference updated successfully!", "info")
+        else:
+            messages.error(request, "Please select a valid language.", "error")
+
+    return redirect("profile")

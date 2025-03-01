@@ -8,6 +8,19 @@
     <link rel="stylesheet" href="{% static 'translation/src/output.css' %}">
 </head>
 <body class="w-full h-screen flex">
+    {% if messages %}
+        <div class="absolute top-8 right-4 z-100" id="django-messages">
+            {% for message in messages %}
+                <div class="alert alert-soft alert-{{ message.tags }} removing:translate-x-5 removing:opacity-0 flex items-center gap-4 transition duration-300 ease-in-out my-2" role="alert" id="dismiss-alert1">
+                    {{ message }}
+                    <button class="ms-auto leading-none" data-remove-element="#dismiss-alert1" aria-label="Close Button">
+                        <span class="icon-[tabler--x] size-5"></span>
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    
 	<div id="room-data" data-room-name="{{ room_name }}" data-current-user="{{ request.user.username }}"></div>
     <section id="sidebar" class="w-1/5 border-slate-100 border-r-2">
         <button type="button" class="btn btn-text max-sm:btn-square sm:hidden" aria-haspopup="dialog" aria-expanded="false" aria-controls="logo-sidebar" data-overlay="#logo-sidebar" >
@@ -67,9 +80,45 @@
               </p>
             </div>
             <div class="navbar-end flex items-center gap-4">
-              <button class="btn btn-sm btn-text btn-circle size-[2.125rem] md:hidden">
-                <span class="icon-[tabler--search] size-[1.375rem]"></span>
-              </button>
+                <button class="btn btn-sm btn-text btn-circle size-[2.125rem] md:hidden">
+                    <span class="icon-[tabler--search] size-[1.375rem]"></span>
+                </button>
+                <div>
+                    <select name="fav_language" id="fav_language" aria-label="select" class="select">
+                        <!-- Indian Languages -->
+                        <optgroup label="Indian Languages">
+                            <option value="as" {% if request.user.fav_language == "as" %}selected{% endif %}>Assamese</option>
+                            <option value="bn" {% if request.user.fav_language == "bn" %}selected{% endif %}>Bengali</option>
+                            <option value="gu" {% if request.user.fav_language == "gu" %}selected{% endif %}>Gujarati</option>
+                            <option value="hi" {% if request.user.fav_language == "hi" %}selected{% endif %}>Hindi</option>
+                            <option value="kn" {% if request.user.fav_language == "kn" %}selected{% endif %}>Kannada</option>
+                            <option value="ml" {% if request.user.fav_language == "ml" %}selected{% endif %}>Malayalam</option>
+                            <option value="mr" {% if request.user.fav_language == "mr" %}selected{% endif %}>Marathi</option>
+                            <option value="or" {% if request.user.fav_language == "or" %}selected{% endif %}>Odia</option>
+                            <option value="pa" {% if request.user.fav_language == "pa" %}selected{% endif %}>Punjabi</option>
+                            <option value="ta" {% if request.user.fav_language == "ta" %}selected{% endif %}>Tamil</option>
+                            <option value="te" {% if request.user.fav_language == "te" %}selected{% endif %}>Telugu</option>
+                            <option value="ur" {% if request.user.fav_language == "ur" %}selected{% endif %}>Urdu</option>
+                        </optgroup>
+                        
+                        <!-- Global Popular Languages -->
+                        <optgroup label="Global Languages">
+                            <option value="en" {% if request.user.fav_language == "en" %}selected{% endif %}>English</option>
+                            <option value="es" {% if request.user.fav_language == "es" %}selected{% endif %}>Spanish</option>
+                            <option value="fr" {% if request.user.fav_language == "fr" %}selected{% endif %}>French</option>
+                            <option value="de" {% if request.user.fav_language == "de" %}selected{% endif %}>German</option>
+                            <option value="zh-cn" {% if request.user.fav_language == "zh-cn" %}selected{% endif %}>Chinese (Simplified)</option>
+                            <option value="zh-tw" {% if request.user.fav_language == "zh-tw" %}selected{% endif %}>Chinese (Traditional)</option>
+                            <option value="ja" {% if request.user.fav_language == "ja" %}selected{% endif %}>Japanese</option>
+                            <option value="ko" {% if request.user.fav_language == "ko" %}selected{% endif %}>Korean</option>
+                            <option value="ru" {% if request.user.fav_language == "ru" %}selected{% endif %}>Russian</option>
+                            <option value="it" {% if request.user.fav_language == "it" %}selected{% endif %}>Italian</option>
+                            <option value="pt" {% if request.user.fav_language == "pt" %}selected{% endif %}>Portuguese</option>
+                            <option value="ar" {% if request.user.fav_language == "ar" %}selected{% endif %}>Arabic</option>
+                        </optgroup>
+                    </select>
+                </div>
+            
               <div class="input-group hidden max-w-56 rounded-full md:flex">
                 <span class="input-group-text">
                   <span class="icon-[tabler--search] text-base-content/80 size-5"></span>

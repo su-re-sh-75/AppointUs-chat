@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="corporate">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,6 +39,39 @@
                     <input id="email" name="email" type="email" class="w-full py-3 text-gray-600 border border-slate-200 rounded-lg px-3 focus:outline-none focus:border-slate-500 hover:shadow" placeholder="Enter email">
                 </label>
                 
+                <select name="fav_language" id="fav_language" aria-label="select" class="select">
+                    <!-- Indian Languages -->
+                    <optgroup label="Indian Languages">
+                        <option value="as" {% if request.user.fav_language == "as" %}selected{% endif %}>Assamese</option>
+                        <option value="bn" {% if request.user.fav_language == "bn" %}selected{% endif %}>Bengali</option>
+                        <option value="gu" {% if request.user.fav_language == "gu" %}selected{% endif %}>Gujarati</option>
+                        <option value="hi" {% if request.user.fav_language == "hi" %}selected{% endif %}>Hindi</option>
+                        <option value="kn" {% if request.user.fav_language == "kn" %}selected{% endif %}>Kannada</option>
+                        <option value="ml" {% if request.user.fav_language == "ml" %}selected{% endif %}>Malayalam</option>
+                        <option value="mr" {% if request.user.fav_language == "mr" %}selected{% endif %}>Marathi</option>
+                        <option value="or" {% if request.user.fav_language == "or" %}selected{% endif %}>Odia</option>
+                        <option value="pa" {% if request.user.fav_language == "pa" %}selected{% endif %}>Punjabi</option>
+                        <option value="ta" {% if request.user.fav_language == "ta" %}selected{% endif %}>Tamil</option>
+                        <option value="te" {% if request.user.fav_language == "te" %}selected{% endif %}>Telugu</option>
+                        <option value="ur" {% if request.user.fav_language == "ur" %}selected{% endif %}>Urdu</option>
+                    </optgroup>
+                    
+                    <!-- Global Popular Languages -->
+                    <optgroup label="Global Languages">
+                        <option value="en" {% if request.user.fav_language == "en" %}selected{% endif %}>English</option>
+                        <option value="es" {% if request.user.fav_language == "es" %}selected{% endif %}>Spanish</option>
+                        <option value="fr" {% if request.user.fav_language == "fr" %}selected{% endif %}>French</option>
+                        <option value="de" {% if request.user.fav_language == "de" %}selected{% endif %}>German</option>
+                        <option value="zh-cn" {% if request.user.fav_language == "zh-cn" %}selected{% endif %}>Chinese (Simplified)</option>
+                        <option value="zh-tw" {% if request.user.fav_language == "zh-tw" %}selected{% endif %}>Chinese (Traditional)</option>
+                        <option value="ja" {% if request.user.fav_language == "ja" %}selected{% endif %}>Japanese</option>
+                        <option value="ko" {% if request.user.fav_language == "ko" %}selected{% endif %}>Korean</option>
+                        <option value="ru" {% if request.user.fav_language == "ru" %}selected{% endif %}>Russian</option>
+                        <option value="it" {% if request.user.fav_language == "it" %}selected{% endif %}>Italian</option>
+                        <option value="pt" {% if request.user.fav_language == "pt" %}selected{% endif %}>Portuguese</option>
+                        <option value="ar" {% if request.user.fav_language == "ar" %}selected{% endif %}>Arabic</option>
+                    </optgroup>
+                </select>
 
                 <label for="password">
                     <p class="font-medium text-slate-700 pb-2">Password</p>

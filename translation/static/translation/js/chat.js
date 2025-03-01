@@ -74,6 +74,7 @@ document.addEventListener('DOMContentLoaded', function(){
     
             if (messageInput.length > 0) {
                 console.log("Sending Message:", { 
+                    type: "text",
                     message: messageInput,
                     username: currentUser,
                     room_name: roomName,
@@ -81,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 });
     
                 chatSocket.send(JSON.stringify({
+                    type: "text",
                     message: messageInput,
                     username: currentUser,
                     room_name: roomName,
@@ -139,12 +141,8 @@ document.addEventListener('DOMContentLoaded', function(){
                 hour12: true
             });
 
-            console.log("Received Message:", { 
-                message: data.message,
-                username: data.username,
-                room_name: data.room_name,
-                senttime: data.senttime
-            });
+            console.log("Received Message:", data);
+
             if (noMessages) {
                 noMessages.style.display = "none";
             }
@@ -173,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function(){
                     data.message.substring(0, 20); 
 
                 // Find and update the timestamp
-                const timestampElement = chatEntry.querySelector(".text-nowrap");
+                const timestampElement = chatEntry.querySelector("#msg-time");
                 const messageTime = new Date(data.senttime).toLocaleTimeString([], {
                     hour: '2-digit',
                     minute: '2-digit',
@@ -258,4 +256,52 @@ document.addEventListener('DOMContentLoaded', function(){
             console.error("Message or sender data is missing:", data);
         }
     };
+
+    // update language
+    document.getElementById("fav_language").addEventListener("change", function () {
+
+        fetch("{% url 'update_language' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: `fav_language=${this.value}`
+        }).then(response => {
+            if (response.ok) {
+                const alertMessage = `
+                    <div class="absolute top-8 right-4 z-50" id="django-messages">
+                        <div class="alert alert-soft alert-info removing:translate-x-5 removing:opacity-0 flex items-center gap-4 transition duration-300 ease-in-out my-2" role="alert" id="dismiss-alert1">
+                            ${response.data}
+                            <button class="ms-auto leading-none" data-remove-element="#dismiss-alert1" aria-label="Close Button">
+                                <span class="icon-[tabler--x] size-5"></span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                document.prepend(alertMessage);
+            } else {
+                const alertMessage = `
+                    <div class="absolute top-8 right-4 z-50" id="django-messages">
+                        <div class="alert alert-soft alert-error removing:translate-x-5 removing:opacity-0 flex items-center gap-4 transition duration-300 ease-in-out my-2" role="alert" id="dismiss-alert1">
+                            ${response.data}
+                            <button class="ms-auto leading-none" data-remove-element="#dismiss-alert1" aria-label="Close Button">
+                                <span class="icon-[tabler--x] size-5"></span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                document.prepend(alertMessage);
+            }
+        });
+    });
+
+    // auto hide django message alerts after 5s
+    setTimeout(function () {
+        const alertElem = document.getElementById("django-messages");
+        if (alertElem){
+            alertElem.style.display = "none";
+        }
+    }, 5000);
+
 })

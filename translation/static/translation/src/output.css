@@ -5566,6 +5566,10 @@ textarea:focus-visible {
   margin-bottom: 1rem;
 }
 
+.me-2\.5 {
+  margin-inline-end: 0.625rem;
+}
+
 .mr-3 {
   margin-right: 0.75rem;
 }
@@ -5578,20 +5582,16 @@ textarea:focus-visible {
   margin-inline-start: auto;
 }
 
+.mt-0\.5 {
+  margin-top: 0.125rem;
+}
+
 .mt-1 {
   margin-top: 0.25rem;
 }
 
 .mt-2 {
   margin-top: 0.5rem;
-}
-
-.me-2\.5 {
-  margin-inline-end: 0.625rem;
-}
-
-.mt-0\.5 {
-  margin-top: 0.125rem;
 }
 
 .block {
@@ -5622,6 +5622,11 @@ textarea:focus-visible {
   display: none;
 }
 
+.size-1\.5 {
+  width: 0.375rem;
+  height: 0.375rem;
+}
+
 .size-4 {
   width: 1rem;
   height: 1rem;
@@ -5630,6 +5635,11 @@ textarea:focus-visible {
 .size-5 {
   width: 1.25rem;
   height: 1.25rem;
+}
+
+.size-6 {
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
 .size-8 {
@@ -5655,16 +5665,6 @@ textarea:focus-visible {
 .size-\[2\.125rem\] {
   width: 2.125rem;
   height: 2.125rem;
-}
-
-.size-1\.5 {
-  width: 0.375rem;
-  height: 0.375rem;
-}
-
-.size-6 {
-  width: 1.5rem;
-  height: 1.5rem;
 }
 
 .\!h-2\.5 {
@@ -5837,6 +5837,10 @@ textarea:focus-visible {
   justify-content: space-between;
 }
 
+.gap-1 {
+  gap: 0.25rem;
+}
+
 .gap-2 {
   gap: 0.5rem;
 }
@@ -5847,10 +5851,6 @@ textarea:focus-visible {
 
 .gap-4 {
   gap: 1rem;
-}
-
-.gap-1 {
-  gap: 0.25rem;
 }
 
 .gap-x-1 {

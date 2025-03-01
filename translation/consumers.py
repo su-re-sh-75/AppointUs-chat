@@ -12,6 +12,7 @@ import os
 from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
 from asgiref.sync import sync_to_async
+from .translate import translate_text
 
 User = get_user_model()
 
@@ -53,15 +54,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
             data['sender'] = sender
             data['receiver'] = receiver
 
+
             if message_type == "text":
-                message = data.get("message", "")
-                await self.save_message(sender, receiver, message)
+                print("Received: ", data)
+                sender_lang = sender.fav_language
+                receiver_lang = receiver.fav_language
+
+                translated_message = data.get("message", "")
+
+                if sender_lang != receiver_lang:
+                    translated_message = await translate_text(data["message"], receiver_lang)
+
+                await self.save_message(sender, receiver, translated_message) 
 
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
                         "type": "text",
-                        "message": message,
+                        "message": translated_message,
                         "sender": sender.username,
                         "receiver": receiver.username,
                         "username": username,
@@ -119,7 +129,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
     async def text(self, event):
-        await self.send(text_data=json.dumps(event))
+        await self.send(text_data=json.dumps({
+            "type": "text",
+            "message": event["message"],
+            "sender": event["sender"],
+            "receiver": event["receiver"],
+            "username": event["username"],
+            "room_name": event["room_name"],
+            "senttime": event["senttime"],
+        }))
     
     async def file(self, event):
         await self.send(text_data=json.dumps({
