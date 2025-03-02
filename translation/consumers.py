@@ -13,11 +13,18 @@ from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
 from asgiref.sync import sync_to_async
 from .translate import translate_text
+from channels.db import database_sync_to_async
 
 User = get_user_model()
 
 async def get_user(username):
     return await sync_to_async(User.objects.get)(username=username)
+
+
+async def get_fav_language(user):
+    if user.is_authenticated:
+        return await database_sync_to_async(lambda: user.customuser.fav_language)()
+    return None
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -57,21 +64,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             if message_type == "text":
                 print("Received: ", data)
-                sender_lang = sender.fav_language
-                receiver_lang = receiver.fav_language
+                sender_lang = await get_fav_language(sender)
+                receiver_lang = await get_fav_language(receiver)
 
-                translated_message = data.get("message", "")
+                message = data.get("message", "")
 
                 if sender_lang != receiver_lang:
                     translated_message = await translate_text(data["message"], receiver_lang)
+                else:
+                    translated_message = message
 
-                await self.save_message(sender, receiver, translated_message) 
+                await self.save_message(sender, receiver, message, sender_lang) 
 
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
                         "type": "text",
-                        "message": translated_message,
+                        "message": message,
+                        "translated_message": translated_message,
                         "sender": sender.username,
                         "receiver": receiver.username,
                         "username": username,
@@ -132,6 +142,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             "type": "text",
             "message": event["message"],
+            "translated_message": event["translated_message"],
             "sender": event["sender"],
             "receiver": event["receiver"],
             "username": event["username"],
@@ -155,8 +166,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
     @sync_to_async
-    def save_message(self, sender, receiver, message):
-        Message.objects.create(sender=sender, receiver=receiver, content=message)
+    def save_message(self, sender, receiver, message, language):
+        Message.objects.create(sender=sender, receiver=receiver, content=message, content_language=language)
 
     @sync_to_async
     def get_receiver_user(self):

@@ -1,12 +1,28 @@
 from django.db import models
 import os
-from django.conf import settings
+from django.contrib.auth.models import User
 
 class Message(models.Model):
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="sent_messages")
-    receiver = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="received_messages")
+    LANGUAGE_CHOICES = [
+        ("as", "Assamese"), ("bn", "Bengali"), ("gu", "Gujarati"),
+        ("hi", "Hindi"), ("kn", "Kannada"), ("ml", "Malayalam"),
+        ("mr", "Marathi"), ("or", "Odia"), ("pa", "Punjabi"),
+        ("ta", "Tamil"), ("te", "Telugu"), ("ur", "Urdu"),
+        ("en", "English"), ("es", "Spanish"), ("fr", "French"),
+        ("de", "German"), ("zh-cn", "Chinese (Simplified)"),
+        ("zh-tw", "Chinese (Traditional)"), ("ja", "Japanese"),
+        ("ko", "Korean"), ("ru", "Russian"), ("it", "Italian"),
+        ("pt", "Portuguese"), ("ar", "Arabic"),
+    ]
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_messages")
     content = models.TextField(blank=True, null=True)
-    file = models.FileField(upload_to='files/', blank=True, null=True)
+    content_language = models.CharField(
+        max_length=10,
+        choices=LANGUAGE_CHOICES,
+        default="en"
+    )
+    file = models.FileField(upload_to='uploads/', blank=True, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     message_type = models.CharField(
         max_length=10,

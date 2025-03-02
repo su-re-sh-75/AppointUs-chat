@@ -1205,6 +1205,13 @@ html {
   padding-bottom: 0.25rem;
 }
 
+.chat-header {
+  grid-row-start: 1;
+  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
 .chat-footer {
   grid-row-start: 3;
   margin-top: 0.25rem;
@@ -5505,6 +5512,10 @@ textarea:focus-visible {
 
 .top-0 {
   top: 0px;
+}
+
+.top-12 {
+  top: 3rem;
 }
 
 .top-8 {

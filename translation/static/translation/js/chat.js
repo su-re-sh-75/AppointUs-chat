@@ -148,13 +148,15 @@ document.addEventListener('DOMContentLoaded', function(){
             }
 
             const div = document.createElement("div");
-            div.className =
-                "chat " +
-                (data.sender === currentUser
-                ? "chat-sender"
-                : "chat-receiver");
+            div.className = "chat " + (data.sender === currentUser ? "chat-sender" : "chat-receiver");
             
-            div.innerHTML = `<div class="chat-bubble">${data.message}</div><time class="text-base-content/80 chat-footer">${messageTime}</time>`;
+            const displayMessage = (data.sender === currentUser)? data.message : data.translated_message;
+            const messageSenderName = (currentUser === data.sender)? "You" : data.sender;
+            div.innerHTML = `
+                <div class="chat-header text-base-content/80">${messageSenderName}</div>
+                <div class="chat-bubble">${displayMessage}</div>
+                <time class="text-base-content/80 chat-footer">${messageTime}</time>
+            `;
             chatbox.appendChild(div);
 
             // Scroll to the bottom of the chatbox
@@ -212,8 +214,10 @@ document.addEventListener('DOMContentLoaded', function(){
             const div = document.createElement("div");
             div.className = "chat " + (data.username === currentUser ? "chat-sender" : "chat-receiver");
             const imageExtensions = ["JPEG", "JPG", "PNG", "GIF", "SVG", "WEBP", "AVIF"];
+            const messageSenderName = (currentUser === data.sender) ? "You" : data.sender;
             if (imageExtensions.includes(fileExtension.toUpperCase())) {
                 div.innerHTML = `
+                    <div class="chat-header text-base-content/80">${messageSenderName}</div>
                     <div class="chat-bubble">
                         <button class="border-base-100 w-52 overflow-hidden rounded-md border" aria-label="Image Button">
                             <img class="w-full" src="/media/uploads/${fileName}" alt="Image attachment" />
@@ -223,6 +227,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 `;    
             } else {
                 div.innerHTML = `
+                    <div class="chat-header text-base-content/80">${messageSenderName}</div>
                     <div class="chat-bubble flex flex-col gap-4">
                         <div class="bg-base-100 rounded-md">
                             <button class="flex items-center gap-2 px-3 py-2 max-sm:w-11/12">
@@ -243,15 +248,11 @@ document.addEventListener('DOMContentLoaded', function(){
                             </button>
                         </div>
                     </div>
+                    <time class="text-base-content/80 chat-footer">${messageTime}</time>
                 `;
             }
-
-            
-            // <a href="${fileUrl}" target="_blank" class="text-blue-500">${fileName}</a>
-
             chatbox.appendChild(div);
             scrollToBottom(100);
-
         } else {
             console.error("Message or sender data is missing:", data);
         }
@@ -259,39 +260,19 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // update language
     document.getElementById("fav_language").addEventListener("change", function () {
-
-        fetch("{% url 'update_language' %}", {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+        fetch('/update-language/', {
             method: "POST",
             headers: {
-                "X-CSRFToken": "{{ csrf_token }}",
+                "X-CSRFToken": csrfToken,
                 "Content-Type": "application/x-www-form-urlencoded"
             },
-            body: `fav_language=${this.value}`
+            body: JSON.stringify({ language: this.value })
         }).then(response => {
             if (response.ok) {
-                const alertMessage = `
-                    <div class="absolute top-8 right-4 z-50" id="django-messages">
-                        <div class="alert alert-soft alert-info removing:translate-x-5 removing:opacity-0 flex items-center gap-4 transition duration-300 ease-in-out my-2" role="alert" id="dismiss-alert1">
-                            ${response.data}
-                            <button class="ms-auto leading-none" data-remove-element="#dismiss-alert1" aria-label="Close Button">
-                                <span class="icon-[tabler--x] size-5"></span>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                document.prepend(alertMessage);
+                console.log("Language set successfully")
             } else {
-                const alertMessage = `
-                    <div class="absolute top-8 right-4 z-50" id="django-messages">
-                        <div class="alert alert-soft alert-error removing:translate-x-5 removing:opacity-0 flex items-center gap-4 transition duration-300 ease-in-out my-2" role="alert" id="dismiss-alert1">
-                            ${response.data}
-                            <button class="ms-auto leading-none" data-remove-element="#dismiss-alert1" aria-label="Close Button">
-                                <span class="icon-[tabler--x] size-5"></span>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                document.prepend(alertMessage);
+                console.error("Language is not set")
             }
         });
     });

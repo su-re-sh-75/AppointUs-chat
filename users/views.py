@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.contrib.auth.models import User
+from .models import CustomUser
 
 def login_page(request):
     if request.method == 'POST':
@@ -46,13 +48,17 @@ def signup_view(request):
             messages.error(request, 'Email already exists', 'error')
             return redirect('users:signup')
         else:
-            user = User.objects.create_user(username=username, email=email, password=password, fav_language=language)
+            user = User.objects.create_user(username=username, email=email, password=password)
             user.save()
+
+            customuser = CustomUser.objects.create(user=user, fav_language=language or 'en')
+            customuser.save()
+
             messages.success(request, 'Account created successfully', 'info')
             # return redirect('users:login')
         
-        login(request, user)
-        return redirect(f'/chat/{request.user.username}')
+            login(request, user)
+            return redirect(f'/chat/{request.user.username}')
     
     return render(request, 'users/signup.html')
 

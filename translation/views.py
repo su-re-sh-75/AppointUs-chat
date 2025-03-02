@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
@@ -9,6 +10,9 @@ from django.http import HttpResponse
 from asgiref.sync import async_to_sync
 import pytz
 from django.contrib import messages
+from users.models import CustomUser
+from django.views.decorators.csrf import csrf_protect
+from django.http import JsonResponse
 
 User = get_user_model()
 
@@ -77,15 +81,19 @@ def chat_file_upload(request, room_name):
         )
     return HttpResponse()
 
-@login_required
+@csrf_protect
 def update_language(request):
-    if request.method == "POST":
-        fav_language = request.POST.get("fav_language")
-        if fav_language:
-            request.user.fav_language = fav_language
-            request.user.save()
-            messages.success(request, "Language preference updated successfully!", "info")
-        else:
-            messages.error(request, "Please select a valid language.", "error")
-
-    return redirect("profile")
+    if request.method == 'POST':
+        user = request.user
+        data = json.loads(request.body)
+        new_lang = data.get('language')
+    
+        if user.is_authenticated and new_lang:
+            user.customuser.fav_language = new_lang
+            user.customuser.save()
+            print(f"{user.customuser.fav_language} is set as favourite language for {user.username}")
+            return JsonResponse({"message": "Language updated successfully"}, status=200)
+        
+        return JsonResponse({"error": "User not authenticated"}, status=401)
+    
+    return JsonResponse({"error": "Invalid request"}, status=400)

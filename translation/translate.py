@@ -1,5 +1,4 @@
 from googletrans import Translator
-import asyncio
 
 async def translate_text(text, target_language):
     async with Translator() as translator:
