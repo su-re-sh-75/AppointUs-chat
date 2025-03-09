@@ -87,40 +87,15 @@
                 <div>
                     <select name="fav_language" id="fav_language" aria-label="select" class="select">
                         <!-- Indian Languages -->
-                        <optgroup label="Indian Languages">
-                            <option value="as" {% if request.user.customuser.fav_language == "as" %}selected{% endif %}>Assamese</option>
-                            <option value="bn" {% if request.user.customuser.fav_language == "bn" %}selected{% endif %}>Bengali</option>
-                            <option value="gu" {% if request.user.customuser.fav_language == "gu" %}selected{% endif %}>Gujarati</option>
-                            <option value="hi" {% if request.user.customuser.fav_language == "hi" %}selected{% endif %}>Hindi</option>
-                            <option value="kn" {% if request.user.customuser.fav_language == "kn" %}selected{% endif %}>Kannada</option>
-                            <option value="ml" {% if request.user.customuser.fav_language == "ml" %}selected{% endif %}>Malayalam</option>
-                            <option value="mr" {% if request.user.customuser.fav_language == "mr" %}selected{% endif %}>Marathi</option>
-                            <option value="or" {% if request.user.customuser.fav_language == "or" %}selected{% endif %}>Odia</option>
-                            <option value="pa" {% if request.user.customuser.fav_language == "pa" %}selected{% endif %}>Punjabi</option>
-                            <option value="ta" {% if request.user.customuser.fav_language == "ta" %}selected{% endif %}>Tamil</option>
-                            <option value="te" {% if request.user.customuser.fav_language == "te" %}selected{% endif %}>Telugu</option>
-                            <option value="ur" {% if request.user.customuser.fav_language == "ur" %}selected{% endif %}>Urdu</option>
-                        </optgroup>
-                        
-                        <!-- Global Popular Languages -->
-                        <optgroup label="Global Languages">
-                            <option value="en" {% if request.user.customuser.fav_language == "en" %}selected{% endif %}>English</option>
-                            <option value="es" {% if request.user.customuser.fav_language == "es" %}selected{% endif %}>Spanish</option>
-                            <option value="fr" {% if request.user.customuser.fav_language == "fr" %}selected{% endif %}>French</option>
-                            <option value="de" {% if request.user.customuser.fav_language == "de" %}selected{% endif %}>German</option>
-                            <option value="zh-cn" {% if request.user.customuser.fav_language == "zh-cn" %}selected{% endif %}>Chinese (Simplified)</option>
-                            <option value="zh-tw" {% if request.user.customuser.fav_language == "zh-tw" %}selected{% endif %}>Chinese (Traditional)</option>
-                            <option value="ja" {% if request.user.customuser.fav_language == "ja" %}selected{% endif %}>Japanese</option>
-                            <option value="ko" {% if request.user.customuser.fav_language == "ko" %}selected{% endif %}>Korean</option>
-                            <option value="ru" {% if request.user.customuser.fav_language == "ru" %}selected{% endif %}>Russian</option>
-                            <option value="it" {% if request.user.customuser.fav_language == "it" %}selected{% endif %}>Italian</option>
-                            <option value="pt" {% if request.user.customuser.fav_language == "pt" %}selected{% endif %}>Portuguese</option>
-                            <option value="ar" {% if request.user.customuser.fav_language == "ar" %}selected{% endif %}>Arabic</option>
-                        </optgroup>
+                        <option value="hi" {% if request.user.customuser.fav_language == "hi" %}selected{% endif %}>Hindi</option>
+                        <option value="kn" {% if request.user.customuser.fav_language == "kn" %}selected{% endif %}>Kannada</option>
+                        <option value="ml" {% if request.user.customuser.fav_language == "ml" %}selected{% endif %}>Malayalam</option>
+                        <option value="ta" {% if request.user.customuser.fav_language == "ta" %}selected{% endif %}>Tamil</option>
+                        <option value="te" {% if request.user.customuser.fav_language == "te" %}selected{% endif %}>Telugu</option>
+                        <option value="en" {% if request.user.customuser.fav_language == "en" %}selected{% endif %}>English</option>
                     </select>
                 </div>
                 
-            
               <div class="input-group hidden max-w-56 rounded-full md:flex">
                 <span class="input-group-text">
                   <span class="icon-[tabler--search] text-base-content/80 size-5"></span>

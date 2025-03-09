@@ -4,15 +4,9 @@ from django.contrib.auth.models import User
 
 class Message(models.Model):
     LANGUAGE_CHOICES = [
-        ("as", "Assamese"), ("bn", "Bengali"), ("gu", "Gujarati"),
         ("hi", "Hindi"), ("kn", "Kannada"), ("ml", "Malayalam"),
-        ("mr", "Marathi"), ("or", "Odia"), ("pa", "Punjabi"),
-        ("ta", "Tamil"), ("te", "Telugu"), ("ur", "Urdu"),
-        ("en", "English"), ("es", "Spanish"), ("fr", "French"),
-        ("de", "German"), ("zh-cn", "Chinese (Simplified)"),
-        ("zh-tw", "Chinese (Traditional)"), ("ja", "Japanese"),
-        ("ko", "Korean"), ("ru", "Russian"), ("it", "Italian"),
-        ("pt", "Portuguese"), ("ar", "Arabic"),
+        ("ta", "Tamil"), ("te", "Telugu"),
+        ("en", "English")
     ]
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_messages")
