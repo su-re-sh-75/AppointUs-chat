@@ -13,15 +13,17 @@ def login_page(request):
         print(username)
         print(password)
         user = authenticate(request, username=username, password=password)
+        if request.user.is_authenticated:
+            return redirect(f'/chat/{request.user.username}/')
+        
         if user is not None:
             login(request, user)
             messages.success(request, 'Login successful!', 'info')
             return redirect(f'/chat/{username}/')
         else:
             messages.error(request, 'Invalid email or password', 'error')
+            return render(request,'users/login.html')
 
-        if request.user.is_authenticated:
-            return redirect(f'/chat/{request.user.username}/')
         
     return render(request,'users/login.html')
 
