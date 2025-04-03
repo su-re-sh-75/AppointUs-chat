@@ -52,7 +52,7 @@ def chat_room(request, room_name):
         key=lambda x: x['last_message'].timestamp if x['last_message'] else datetime.min.replace(tzinfo=kolkata_tz),
         reverse=True
     )
-
+    print(chats)
     return render(request, 'translation/chat.html', {
         'room_name': room_name,
         'chats': chats,

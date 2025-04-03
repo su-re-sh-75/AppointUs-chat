@@ -51,7 +51,6 @@
 							<!-- Message Content and Username -->
 							<div>
 								<p class="text-md font-semibold truncate">{{ item.user.username|title }}</p>
-
 								<!-- Last message preview -->
 								<div class="flex justify-between">
 									{% if item.last_message %}
@@ -156,7 +155,7 @@
             <!-- chat messages -->
             <div id="chatbox" class="flex flex-col p-3 h-full bg-slate-100 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] flex-1 pb-16" data-theme="corporate">
                 {% if chats %} 
-					{% for message in chats %}
+					<!-- {% for message in chats %}
 						{% if message.content %}
 							<div class="chat {% if message.sender == request.user %} chat-sender {% else %} chat-receiver {% endif %}">
                                 <div class="chat-header text-base-content/80">
@@ -221,7 +220,7 @@
                                 </div>
                             {% endif %}
 						{% endif %}
-					{% endfor %} 
+					{% endfor %}  -->
 				{% elif room_name != request.user.username %}
                     <div id="no-messages" class="flex justify-center w-full">
                         <p class="text-center w-1/2 border rounded-md h-8 border-green-400 bg-green-100 text-green-500">
