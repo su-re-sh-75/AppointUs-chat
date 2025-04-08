@@ -31,8 +31,8 @@
 		<aside id="logo-sidebar">
 			<div class="drawer-header p-5 border-b mb-4">
 				<div class="flex items-center gap-3">
-					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path fill-rule="evenodd" clip-rule="evenodd" d="M17.6745 16.9224L12.6233 10.378C12.2167 9.85117 11.4185 9.8611 11.0251 10.3979L6.45728 16.631C6.26893 16.888 5.96935 17.0398 5.65069 17.0398H3.79114C2.9635 17.0398 2.49412 16.0919 2.99583 15.4336L11.0224 4.90319C11.4206 4.38084 12.2056 4.37762 12.608 4.89668L20.9829 15.6987C21.4923 16.3558 21.024 17.3114 20.1926 17.3114H18.4661C18.1562 17.3114 17.8638 17.1677 17.6745 16.9224ZM12.5866 15.5924L14.8956 18.3593C15.439 19.0105 14.976 20 14.1278 20H9.74075C8.9164 20 8.4461 19.0586 8.94116 18.3994L11.0192 15.6325C11.4065 15.1169 12.1734 15.0972 12.5866 15.5924Z" fill="oklch(var(--p))"/></svg>
+					<!-- <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path fill-rule="evenodd" clip-rule="evenodd" d="M17.6745 16.9224L12.6233 10.378C12.2167 9.85117 11.4185 9.8611 11.0251 10.3979L6.45728 16.631C6.26893 16.888 5.96935 17.0398 5.65069 17.0398H3.79114C2.9635 17.0398 2.49412 16.0919 2.99583 15.4336L11.0224 4.90319C11.4206 4.38084 12.2056 4.37762 12.608 4.89668L20.9829 15.6987C21.4923 16.3558 21.024 17.3114 20.1926 17.3114H18.4661C18.1562 17.3114 17.8638 17.1677 17.6745 16.9224ZM12.5866 15.5924L14.8956 18.3593C15.439 19.0105 14.976 20 14.1278 20H9.74075C8.9164 20 8.4461 19.0586 8.94116 18.3994L11.0192 15.6325C11.4065 15.1169 12.1734 15.0972 12.5866 15.5924Z" fill="oklch(var(--p))"/></svg> -->
 					<h3 class="drawer-title text-xl font-semibold">APPOINTUS</h3>
 				</div>
 			</div>
@@ -55,10 +55,14 @@
 								<div class="flex justify-between">
 									{% if item.last_message %}
 										<p class="truncate text-xs" id="last-message">
-											{% if item.last_message.sender == request.user %} You: {% endif %}
-											{{ item.last_message.content|truncatechars:20 }}
+											{% if item.last_message.sender == request.user %}
+                                                You: {{ item.last_message.sender_msg|truncatechars:20 }}
+                                            {% else %}
+                                                {{ item.last_message.receiver }}: {{ item.last_message.receiver_msg|truncatechars:20 }}
+                                            {% endif %}
+											
 										</p>
-										<p class="text-nowrap text-xs text-right" id="msg-time">{{ item.last_message.timestamp|date:"h:i A" }}</p>
+										<p class="text-nowrap text-xs text-right" id="msg-time">{{ item.last_message.sent_time|date:"h:i A" }}</p>
 									{% else %}
 										<p class="text-xs">No messages yet</p>
 									{% endif %}
@@ -155,8 +159,8 @@
             <!-- chat messages -->
             <div id="chatbox" class="flex flex-col p-3 h-full bg-slate-100 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] flex-1 pb-16" data-theme="corporate">
                 {% if chats %} 
-					<!-- {% for message in chats %}
-						{% if message.content %}
+					{% for message in chats %}
+						{% if message.sender_msg %}
 							<div class="chat {% if message.sender == request.user %} chat-sender {% else %} chat-receiver {% endif %}">
                                 <div class="chat-header text-base-content/80">
                                     {% if request.user == message.sender %}
@@ -165,10 +169,16 @@
                                         {{message.sender}}
                                     {% endif %}
                                 </div>
-								<div class="chat-bubble">{{ message.content }}</div>
-								<time class="text-base-content/80 chat-footer">{{ message.timestamp|date:"h:i A" }}</time>
+								<div class="chat-bubble">
+                                    {% if request.user == message.sender %}
+                                        {{ message.sender_msg }}
+                                    {% elif request.user == message.receiver %}
+                                        {{ message.receiver_msg }}
+                                    {% endif %}
+                                </div>
+								<time class="text-base-content/80 chat-footer">{{ message.sent_time|date:"h:i A" }}</time>
 							</div>
-						{% elif message.file %}
+						{% elif message.message_file %}
                             {% if message.is_image %}
                                 <div class="chat {% if message.sender == request.user %} chat-sender {% else %} chat-receiver {% endif %}">
                                     <div class="chat-header text-base-content/80">
@@ -180,10 +190,10 @@
                                     </div>
                                     <div class="chat-bubble flex flex-col gap-4">
                                         <button class="border-base-100 w-52 overflow-hidden rounded-md border" aria-label="Image Button">
-                                            <img class="w-full" src="{{ message.file.url }}" alt="Image attachment" />
+                                            <img class="w-full" src="{{ message.message_file.url }}" alt="Image attachment" />
                                         </button>
                                     </div>
-                                    <time class="text-base-content/80 chat-footer">{{ message.timestamp|date:"h:i A" }}</time>
+                                    <time class="text-base-content/80 chat-footer">{{ message.sent_time|date:"h:i A" }}</time>
                                 </div>
                             {% else %}
                                 <div class="chat {% if message.sender == request.user %} chat-sender {% else %} chat-receiver {% endif %}">
@@ -210,17 +220,17 @@
                                                         {{ message.file_extension|upper }}
                                                     </div>
                                                 </div>
-                                                <a class="btn btn-text btn-circle" href="{{ message.file.url }}" download>
+                                                <a class="btn btn-text btn-circle" href="{{ message.message_file.url }}" download>
                                                     <span class="icon-[tabler--download] text-base-content size-6"></span>
                                                 </a>
                                             </button>
                                         </div>
                                     </div>
-                                    <time class="text-base-content/80 chat-footer">{{ message.timestamp|date:"h:i A" }}</time>
+                                    <time class="text-base-content/80 chat-footer">{{ message.sent_time|date:"h:i A" }}</time>
                                 </div>
                             {% endif %}
 						{% endif %}
-					{% endfor %}  -->
+					{% endfor %} 
 				{% elif room_name != request.user.username %}
                     <div id="no-messages" class="flex justify-center w-full">
                         <p class="text-center w-1/2 border rounded-md h-8 border-green-400 bg-green-100 text-green-500">
@@ -233,35 +243,42 @@
 							Choose a contact to chat
 						</p>
 					</div>
-                {% endif %}
-			</div>
-			<!-- input -->
-			{% if room_name != request.user.username %}
-            <div class="flex space-x-2 m-4 sticky bottom-4 z-50">
-                <input type="text" placeholder="Message" class="input flex-1" data-theme="corporate" id="my_input"/>
+                    {% endif %}
+                </div>
+                <!-- input -->
+                {% if room_name != request.user.username %}
+                <div class="flex space-x-2 m-4 sticky bottom-4 z-50">
+                    <!-- Emoji Picker Button (Icon) -->
+                    <div id="emoji-picker-container">
+                        <button id="emoji-btn" class="p-2 rounded-full text-accent hover:bg-accent hover:text-slate-50 flex items-center justify-center w-10 h-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-smile-plus-icon lucide-smile-plus"><path d="M22 11v1a10 10 0 1 1-9-10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/><path d="M16 5h6"/><path d="M19 2v6"/></svg>
+                        </button>
+                    </div>
+
+                    <!-- File Upload Button (Icon) -->
+                    <div class="relative inline-block">
+                        <label for="file-upload" class="cursor-pointer p-2 rounded-full text-accent hover:bg-accent hover:text-slate-50 flex items-center justify-center w-10 h-10">
+                            <input id="file-upload" type="file" class="hidden" name="attachments" multiple>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-paperclip"><path d="M13.234 20.252 21 12.3"/><path d="m16 6-8.414 8.586a2 2 0 0 0 0 2.828 2 2 0 0 0 2.828 0l8.414-8.586a4 4 0 0 0 0-5.656 4 4 0 0 0-5.656 0l-8.415 8.585a6 6 0 1 0 8.486 8.486"/></svg>
+                        </label>
+                        
+                        <!-- Popover -->
+                        <div id="file-popover" class="hidden absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-white shadow-lg rounded-lg p-3 border border-gray-200">
+                            <div class="flex justify-between items-center">
+                                <p class="text-sm text-gray-700 font-medium">Selected Files:</p>
+                                <button id="close-popover" class="text-gray-500 hover:text-red-500 text-lg">&times;</button>
+                            </div>
+                            <ul id="file-list" class="text-sm text-gray-600 mt-2"></ul>
+                        </div>
+                    </div>
+                    <input type="text" placeholder="Message" class="input" data-theme="corporate" id="my_input"/>
+                    
 				
-				<!-- File Upload Button (Icon) -->
-				<div class="relative inline-block">
-					<label for="file-upload" class="cursor-pointer p-2 rounded-full text-accent hover:bg-accent hover:text-slate-50 flex items-center justify-center w-10 h-10">
-						<input id="file-upload" type="file" class="hidden" name="attachments" multiple>
-						<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-paperclip"><path d="M13.234 20.252 21 12.3"/><path d="m16 6-8.414 8.586a2 2 0 0 0 0 2.828 2 2 0 0 0 2.828 0l8.414-8.586a4 4 0 0 0 0-5.656 4 4 0 0 0-5.656 0l-8.415 8.585a6 6 0 1 0 8.486 8.486"/></svg>
-					</label>
-					
-					<!-- Popover -->
-					<div id="file-popover" class="hidden absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-white shadow-lg rounded-lg p-3 border border-gray-200">
-						<div class="flex justify-between items-center">
-							<p class="text-sm text-gray-700 font-medium">Selected Files:</p>
-							<button id="close-popover" class="text-gray-500 hover:text-red-500 text-lg">&times;</button>
-						</div>
-						<ul id="file-list" class="text-sm text-gray-600 mt-2"></ul>
-					</div>
-				</div>
-				
-				<button class="btn btn-accent" id="submit_button">
-					Send
-					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-horizontal"><path d="M3.714 3.048a.498.498 0 0 0-.683.627l2.843 7.627a2 2 0 0 1 0 1.396l-2.842 7.627a.498.498 0 0 0 .682.627l18-8.5a.5.5 0 0 0 0-.904z"/><path d="M6 12h16"/></svg>
-				</button>
-            </div>
+                    <button class="btn btn-accent" id="submit_button">
+                        Send
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-horizontal"><path d="M3.714 3.048a.498.498 0 0 0-.683.627l2.843 7.627a2 2 0 0 1 0 1.396l-2.842 7.627a.498.498 0 0 0 .682.627l18-8.5a.5.5 0 0 0 0-.904z"/><path d="M6 12h16"/></svg>
+                    </button>
+                </div>
 			{% endif %}
           </main>
     </section>
@@ -270,5 +287,6 @@
 
     <script src="{% static 'translation/js/chat.js' %}"></script>
     <script src="{% static 'translation/js/flyonui.js' %}"></script>
+    <script type="module" src="{% static 'translation/js/picmo emoji picker.js' %}"></script>
 </body>
 </html>

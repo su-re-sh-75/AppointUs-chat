@@ -1,5 +1,5 @@
 Staff:
-    username: sureshadmin
+    username: suresh
     password: admin123
 Normal:
     suresh

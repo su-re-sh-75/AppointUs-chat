@@ -1,4 +1,6 @@
+
 document.addEventListener('DOMContentLoaded', function(){
+    
     const fileInput = document.getElementById('file-upload');
     const fileDisplay = document.getElementById('file-list');
     const popover = document.getElementById('file-popover');
@@ -132,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function(){
         const data = JSON.parse(e.data);
 
         if (data.type === "text") {
-        // Display the new message in the chatbox
+            // Display the new message in the chatbox
             const chatbox = document.querySelector("#chatbox");
             const noMessages = document.querySelector("#no-messages");
             const messageTime = new Date(data.senttime).toLocaleTimeString([], {
@@ -159,20 +161,17 @@ document.addEventListener('DOMContentLoaded', function(){
             `;
             chatbox.appendChild(div);
 
-            // Scroll to the bottom of the chatbox
             scrollToBottom(100);
 
             // Update the last message in the sidebar
             const chatEntry = document.querySelector(`a[data-id="${data.room_name}"]`);
             
             if (chatEntry) {
-                // Find and update the last message preview
                 const lastMessageElement = chatEntry.querySelector("#last-message");
                 lastMessageElement.innerHTML = 
                     (data.username === currentUser ? "You: " : "") +
                     data.message.substring(0, 20); 
 
-                // Find and update the timestamp
                 const timestampElement = chatEntry.querySelector("#msg-time");
                 const messageTime = new Date(data.senttime).toLocaleTimeString([], {
                     hour: '2-digit',

@@ -33,23 +33,23 @@ def chat_room(request, room_name):
     if search_query:
         chats = chats.filter(Q(content__icontains=search_query))  
 
-    chats = chats.order_by('timestamp') 
+    chats = chats.order_by('sent_time') 
     user_last_messages = []
 
     for user in users:
         last_message = Message.objects.filter(
             (Q(sender=request.user) & Q(receiver=user)) |
             (Q(receiver=request.user) & Q(sender=user))
-        ).order_by('-timestamp').first()
+        ).order_by('-sent_time').first()
         
         user_last_messages.append({
             'user': user,
             'last_message': last_message
         })
         print(user_last_messages)
-    # Sort user_last_messages by the timestamp of the last_message in descending order
+    # Sort user_last_messages by the sent_time of the last_message in descending order
     user_last_messages.sort(
-        key=lambda x: x['last_message'].timestamp if x['last_message'] else datetime.min.replace(tzinfo=kolkata_tz),
+        key=lambda x: x['last_message'].sent_time if x['last_message'] else datetime.min.replace(tzinfo=kolkata_tz),
         reverse=True
     )
     print(chats)
@@ -68,7 +68,7 @@ def chat_file_upload(request, room_name):
         message = Message.objects.create(
             sender = request.user,
             receiver = receiver_user,
-            file = file
+            message_file = file
         )
 
         channel_layer = get_channel_layer()

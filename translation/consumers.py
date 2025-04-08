@@ -74,7 +74,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 else:
                     translated_message = message
 
-                await self.save_message(sender, receiver, message, sender_lang) 
+                await self.save_message(sender, receiver, message, translated_message, sender_lang, receiver_lang) 
 
                 await self.channel_layer.group_send(
                     self.room_group_name,
@@ -116,7 +116,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             file_message = await sync_to_async(Message.objects.create)(
                 sender=sender,
                 receiver=receiver,
-                file=f"uploads/{file_name}",
+                message_file=f"uploads/{file_name}",
                 message_type="file"
             )
 
@@ -166,8 +166,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 
     @sync_to_async
-    def save_message(self, sender, receiver, message, language):
-        Message.objects.create(sender=sender, receiver=receiver, content=message, content_language=language)
+    def save_message(self, sender, receiver, sender_message, receiver_message, sender_language, receiver_language):
+        Message.objects.create(sender=sender, receiver=receiver, sender_msg=sender_message, receiver_msg=receiver_message, sender_language=sender_language, receiver_language=receiver_language)
 
     @sync_to_async
     def get_receiver_user(self):
