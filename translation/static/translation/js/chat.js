@@ -1,6 +1,6 @@
-
 document.addEventListener('DOMContentLoaded', function(){
     
+    // Files sending
     const fileInput = document.getElementById('file-upload');
     const fileDisplay = document.getElementById('file-list');
     const popover = document.getElementById('file-popover');
@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', function(){
         fileDisplay.innerHTML = '';
         fileInput.value = '';
     });
+
     const chatbox = document.querySelector("#chatbox");
 
     // Function to scroll to the bottom of the chatbox
@@ -36,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function(){
             chatbox.scrollTop = chatbox.scrollHeight;
         }, time);
     }
+    window.scrollToBottom = scrollToBottom;
 
     // Scroll to bottom when the page is loaded
     scrollToBottom(100);
@@ -46,6 +48,7 @@ document.addEventListener('DOMContentLoaded', function(){
     const chatSocket = new WebSocket(
         "ws://" + window.location.host + "/ws/chat/" + roomName + "/"
     );
+    window.chatSocket = chatSocket;
 
     chatSocket.onopen = function (e) {
         console.log("The connection was set up successfully!");
@@ -56,21 +59,22 @@ document.addEventListener('DOMContentLoaded', function(){
 
     document.querySelector("#my_input").focus();
     document.querySelector("#my_input").onkeyup = function (e) {
-    if (e.keyCode == 13) {
-        e.preventDefault();
-        document.querySelector("#submit_button").click();
-    }
+        if (e.keyCode == 13) {
+            e.preventDefault();
+            document.querySelector("#submit_button").click();
+        }
     };
 
-    document.querySelector("#submit_button").onclick = function (e) {
+    document.querySelector("#submit_button").addEventListener('click', function (e){
         var messageInput = document.querySelector("#my_input").value;
         var fileInput = document.querySelector("#file-upload");
         var files = fileInput.files;
     
-        if (messageInput.length == 0 && (!files || fileDisplay.innerHTML === '')) {
+        if (messageInput.length == 0 && (!files || fileDisplay.innerHTML === '') && !window.recordedBlob) {
             e.preventDefault();
-            alert("Type a message or select a file");
+            console.error("Type or record a message or select a file");
         } else {
+            // send text msg
             let now = new Date();
             let senttime = now.toISOString();
     
@@ -93,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 
                 document.querySelector("#my_input").value = ""; 
             }
-    
+            // send uploaded files
             if (files.length > 0) {
                 let filePromises = [];
     
@@ -126,10 +130,10 @@ document.addEventListener('DOMContentLoaded', function(){
                 });
             }
         }
-    };
+    });
     
 
-    // Update the onmessage function to update the chat list
+    // When msg is received in websocket from backend
     chatSocket.onmessage = function (e) {
         const data = JSON.parse(e.data);
 
@@ -252,7 +256,9 @@ document.addEventListener('DOMContentLoaded', function(){
             }
             chatbox.appendChild(div);
             scrollToBottom(100);
-        } else {
+        } else if (data.type == 'voice'){
+            handleReceivedVoiceMessage(data);
+        }else {
             console.error("Message or sender data is missing:", data);
         }
     };

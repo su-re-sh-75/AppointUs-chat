@@ -14,6 +14,8 @@ from django.contrib.auth import get_user_model
 from asgiref.sync import sync_to_async
 from .translate import translate_text
 from channels.db import database_sync_to_async
+from django.conf import settings
+# from .transcribe import transcribe_audio
 
 User = get_user_model()
 
@@ -92,6 +94,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
             elif message_type == "files":  # New handling for multiple files
                 await self.save_files(data["files"], sender, receiver, room_name, sent_time)
+            elif message_type == "voice":
+                await self.handle_voice_message(data)
 
         except json.JSONDecodeError:
             print("Invalid JSON received.")
@@ -137,6 +141,55 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 }
             )
 
+    async def handle_voice_message(self, data):
+        base64_audio = data['voice_file'].split(',')[1]
+        filename = data['voice_filename']
+        sender = data['sender']
+        receiver = data['receiver']
+        senttime = data['senttime']
+        room_name = data['room_name']
+        # Decode audio and save
+        audio_data = base64.b64decode(base64_audio)
+        audio_dir = 'media/uploads/voice'
+        os.makedirs(audio_dir, exist_ok=True)
+        audio_path = os.path.join(audio_dir, filename)
+        with open(audio_path, 'wb') as f:
+            f.write(audio_data)
+
+        # Transcribe & translate
+        # transcription = await sync_to_async(transcribe_audio)(audio_path)
+        # translated_text = await sync_to_async(translate_text)(transcription, receiver.favorite_language)
+
+        # Save to DB
+        print("Received Voice Message from Client:\n", data)
+        voice_msg = await sync_to_async(Message.objects.create)(
+            sender=sender,
+            receiver=receiver,
+            message_file=f'uploads/voice/{filename}',
+            # receiver_msg=translated_text,
+            message_type='voice',
+            sender_language=await get_fav_language(sender),
+            receiver_language=await get_fav_language(receiver)
+        )
+
+        # Send back to group
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                "type": "voice",
+                "voice_file_url": f"/media/uploads/voice/{filename}",
+                "voice_filename": filename,
+                "voice_filesize": voice_msg.file_size,
+                "voice_file_extension": voice_msg.file_extension,
+                "sender": sender.username,
+                "receiver": receiver.username,
+                "username": sender.username,
+                # "transcription": translated_text,
+                "room_name": room_name,
+                "senttime": senttime
+            }
+        )
+
 
     async def text(self, event):
         await self.send(text_data=json.dumps({
@@ -160,6 +213,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
             "sender": event.get("sender", "UnknownSender"), 
             "receiver": event.get("receiver", "UnknownReceiver"),
             "username": event.get("username", ""),
+            "room_name": event.get("room_name", ""),
+            "senttime": event.get("senttime", ""),
+        }))
+
+    async def voice(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "voice",
+            "voice_file_url": event.get("voice_file_url", ""),
+            "voice_filename": event.get("voice_filename", ""),
+            "voice_filesize": event.get("voice_filesize", ""),
+            "voice_file_extension": event.get("voice_file_extension", ""),
+            "sender": event.get("sender", "UnknownSender"), 
+            "receiver": event.get("receiver", "UnknownReceiver"),
+            "username": event.get("username", ""),
+            # "transcription": translated_text,
             "room_name": event.get("room_name", ""),
             "senttime": event.get("senttime", ""),
         }))

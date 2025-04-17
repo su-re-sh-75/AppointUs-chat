@@ -7,6 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token }}">
     <title>{% block title %}Realtime Translation Chat{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'translation/src/output.css' %}">
+    <link rel="icon" type="image/png" href="{% static 'translation/images/LOGO.png' %}">
 </head>
 <body class="w-full h-screen flex">
     {% if messages %}
@@ -195,6 +196,27 @@
                                     </div>
                                     <time class="text-base-content/80 chat-footer">{{ message.sent_time|date:"h:i A" }}</time>
                                 </div>
+                            {% elif message.message_type == "voice" %}
+                                <div class="chat {% if message.sender == request.user %} chat-sender {% else %} chat-receiver {% endif %}">
+                                    <div class="chat-header text-base-content/80">
+                                        {% if request.user == message.sender %}
+                                            You
+                                        {% elif request.user == message.receiver %}
+                                            {{message.sender}}
+                                        {% endif %}
+                                    </div>
+                                    <div class="chat-bubble voice-message-bubble flex items-center gap-3 px-3 py-2 rounded-lg bg-base-200 w-2/5">
+                                        <button id="voice-play-btn" class="w-8 h-8 rounded-full bg-primary text-primary-content flex items-center justify-center shrink-0">
+                                            <svg id="play-icon" class="size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play-icon lucide-play"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                                            <svg id="pause-icon" class="size-4 hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pause-icon lucide-pause"><rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/></svg>
+                                        </button>
+                                        <input type="range" name="voice-progress" id="voice-progress" class="range range-xs appearance-none bg-white w-full h-1 rounded-lg" aria-label="range" max="100">
+                                        <span id="voice-time" class="text-xs ml-auto"></span>
+                                        
+                                        <audio id="voice-audio" class="hidden" src="{{ message.message_file.url }}"></audio>
+                                    </div>
+                                    <time class="text-base-content/80 chat-footer">{{ message.sent_time|date:"h:i A" }}</time>
+                                </div>
                             {% else %}
                                 <div class="chat {% if message.sender == request.user %} chat-sender {% else %} chat-receiver {% endif %}">
                                     <div class="chat-header text-base-content/80">
@@ -243,8 +265,8 @@
 							Choose a contact to chat
 						</p>
 					</div>
-                    {% endif %}
-                </div>
+                {% endif %}
+            </div>
                 <!-- input -->
                 {% if room_name != request.user.username %}
                 <div class="flex space-x-2 m-4 sticky bottom-4 z-50">
@@ -262,8 +284,8 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-paperclip"><path d="M13.234 20.252 21 12.3"/><path d="m16 6-8.414 8.586a2 2 0 0 0 0 2.828 2 2 0 0 0 2.828 0l8.414-8.586a4 4 0 0 0 0-5.656 4 4 0 0 0-5.656 0l-8.415 8.585a6 6 0 1 0 8.486 8.486"/></svg>
                         </label>
                         
-                        <!-- Popover -->
-                        <div id="file-popover" class="hidden absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-white shadow-lg rounded-lg p-3 border border-gray-200">
+                        <!-- File Popover -->
+                        <div id="file-popover" class="hidden absolute bottom-full transform mb-2 w-48 bg-white shadow-lg rounded-lg p-3 border border-gray-200">
                             <div class="flex justify-between items-center">
                                 <p class="text-sm text-gray-700 font-medium">Selected Files:</p>
                                 <button id="close-popover" class="text-gray-500 hover:text-red-500 text-lg">&times;</button>
@@ -273,20 +295,33 @@
                     </div>
                     <input type="text" placeholder="Message" class="input" data-theme="corporate" id="my_input"/>
                     
-				
+                    <!-- Mic button -->
+                    <div class="relative inline-block">
+                        <button id="mic-btn" class="p-2 rounded-full text-accent hover:bg-accent hover:text-slate-50 flex items-center justify-center w-10 h-10">    
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mic-icon lucide-mic"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                        </button>
+                        
+                        <!-- Voice Popover -->
+                        <div id="voice-popover" class="hidden absolute bottom-full left-1/2 -translate-x-1/2 transform mb-2 w-48 bg-white shadow-lg rounded-lg p-3 border border-gray-200">
+                            <button id="voice-close-popover" class="text-gray-500 text-right hover:text-red-500 text-lg">&times;</button>
+                            <!-- <ul id="voice-list" class="text-sm text-gray-600 mt-2"></ul> -->
+                        </div>
+                    </div>
+                    
                     <button class="btn btn-accent" id="submit_button">
                         Send
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-horizontal"><path d="M3.714 3.048a.498.498 0 0 0-.683.627l2.843 7.627a2 2 0 0 1 0 1.396l-2.842 7.627a.498.498 0 0 0 .682.627l18-8.5a.5.5 0 0 0 0-.904z"/><path d="M6 12h16"/></svg>
                     </button>
                 </div>
-			{% endif %}
+                {% endif %}
           </main>
     </section>
 
     {{slug|json_script:"room_slug"}}
 
     <script src="{% static 'translation/js/chat.js' %}"></script>
-    <script src="{% static 'translation/js/flyonui.js' %}"></script>
+    <script src="{% static 'translation/js/voice_msg.js' %}"></script>
     <script type="module" src="{% static 'translation/js/picmo emoji picker.js' %}"></script>
+    <script src="{% static 'translation/js/flyonui.js' %}"></script>
 </body>
 </html>

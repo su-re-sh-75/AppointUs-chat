@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./translation/static/translation/src/output.css">
+</head>
+<body class="flex items-center justify-center h-screen" data-theme="corporate">
+    <div class="chat chat-sender w-1/2">
+
+        <div class="chat-bubble voice-message-bubble flex items-center gap-3 px-3 py-2 rounded-lg bg-base-200 w-1/2">
+            <button id="voice-play-btn" class="w-8 h-8 rounded-full bg-primary text-primary-content flex items-center justify-center shrink-0">
+                <svg id="play-icon" class="size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play-icon lucide-play"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                <svg id="pause-icon" class="size-4 hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pause-icon lucide-pause"><rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/></svg>
+            </button>
+            <input type="range" name="voice-progress" id="voice-progress" class="range range-xs appearance-none bg-white w-full h-1 rounded-lg" aria-label="range">
+            <span id="voice-time" class="text-xs text-primary-content ml-auto"></span>
+            
+            <audio id="voice-audio" class="hidden" src="./media/uploads/voice/darbar thalaivar intro.mp3">
+            </audio>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function(){
+            let progress = document.getElementById("voice-progress");
+            let audio = document.getElementById("voice-audio");
+            let playBtn = document.getElementById("voice-play-btn");
+            let playIcon = document.getElementById("play-icon");
+            let pauseIcon = document.getElementById("pause-icon");
+            let voiceTimeElem = document.getElementById("voice-time");
+            let progressInterval;
+            progress.value = 0;
+            voiceTimeElem.textContent = formatPlayTime(audio.duration);
+
+            function formatPlayTime(seconds){
+                seconds = Math.floor(seconds);
+                let mins = Math.floor(seconds / 60);
+                seconds = seconds % 60;
+                if (seconds < 10) seconds = "0" + seconds;
+                return mins + ":" + seconds;
+            }
+
+            audio.addEventListener("loadedmetadata", function(){
+                progress.max = audio.duration;
+                progress.value = audio.currentTime;
+                voiceTimeElem.textContent = formatPlayTime(0);
+                clearInterval(progressInterval);
+            });
+
+            audio.addEventListener("pause", function () {
+                clearInterval(progressInterval);
+            });
+             
+            audio.addEventListener("playing", function(){
+                clearInterval(progressInterval); 
+                progressInterval = setInterval(()=>{
+                    progress.value = audio.currentTime;
+                    voiceTimeElem.textContent = formatPlayTime(audio.currentTime);
+                }, 500);
+            });
+
+            audio.addEventListener("ended", function(){
+                clearInterval(progressInterval);
+                progress.value = 0;
+                voiceTimeElem.textContent = formatPlayTime(0);
+                pauseIcon.classList.add("hidden");
+                playIcon.classList.remove("hidden");
+            });
+
+            playBtn.addEventListener("click", function(){
+                if (!pauseIcon.classList.contains("hidden")){
+                    audio.pause();
+                    pauseIcon.classList.add("hidden");
+                    playIcon.classList.remove("hidden");
+                }else{
+                    audio.play();
+                    playIcon.classList.add("hidden");
+                    pauseIcon.classList.remove("hidden");
+                }
+            });
+
+            progress.addEventListener("input", function(){
+                audio.play();
+                audio.currentTime = progress.value;
+                voiceTimeElem.textContent = formatPlayTime(audio.currentTime);
+                playIcon.classList.add("hidden");
+                pauseIcon.classList.remove("hidden");
+            });
+            
+        })
+    </script>
+</body>
+</html>

@@ -1,9 +1,10 @@
  /** @type {import('tailwindcss').Config} */
  export default {
     content: [
-        "./translation/templates/**/*.html",
+        "./translation/templates/translation/*.html",
         "./users/templates/**/*.html",
         "./node_modules/flyonui/dist/js/*.js",
+        "./*.html",
     ],
     theme: {
       extend: {},
