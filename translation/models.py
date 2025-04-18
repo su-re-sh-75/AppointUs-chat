@@ -17,6 +17,8 @@ class Message(models.Model):
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_messages")
     sender_msg = models.TextField(blank=True, null=True)
     receiver_msg = models.TextField(blank=True, null=True)
+    transcribed_text = models.TextField(blank=True, null=True)      # for voice msg
+    translated_text = models.TextField(blank=True, null=True)       # for voice msg
     message_file = models.FileField(upload_to='uploads/', blank=True, null=True)
     sender_language = models.CharField(max_length=10, choices=LANGUAGE_CHOICES, default="en")
     receiver_language = models.CharField(max_length=10, choices=LANGUAGE_CHOICES, default="en")

@@ -32,11 +32,39 @@ def convert_ogg_to_wav(input_path, output_path):
     ])
     print(f"Converted {input_path} -> {output_path}")
 
+def convert_ogg_to_wav_from_memory(input_audio_data, output_path):
+    """
+    Converts OGG/Opus file to 16kHz mono WAV using ffmpeg from in-memory audio data.
+    """
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-def transcribe_wav(file_path):
+    with open(output_path, 'wb') as f:
+        subprocess.run([
+            r"C:\ffmpeg\bin\ffmpeg.exe",
+            '-y',
+            '-i', 'pipe:0',  
+            '-acodec', 'pcm_s16le',
+            '-ac', '1',       
+            '-ar', '16000',   
+            '-f', 'wav',      
+            'pipe:1'          
+        ], input=input_audio_data, stdout=f)
+
+    print(f"Converted in-memory OGG data to {output_path}")
+
+def transcribe_wav(file_path, language="english"):
     """
     Transcribes a LINEAR16 WAV file using Google Speech-to-Text.
     """
+    lang_code_map = {
+        'english-US': 'en-US',
+        'english': 'en-IN',
+        'tamil': 'ta-IN',
+        'kannada': 'ka-IN',
+        'telugu': 'te-IN',
+        'malayalam': 'ml-IN',
+        'hindi': 'hi-IN'
+    }
     with open(file_path, 'rb') as audio_file:
         content = audio_file.read()
         audio = speech.RecognitionAudio(content=content)
@@ -44,7 +72,8 @@ def transcribe_wav(file_path):
         config = speech.RecognitionConfig(
             encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
             sample_rate_hertz=16000,
-            language_code="en-US",
+            language_code=lang_code_map[language],
+            enable_automatic_punctuation=True
         )
 
         response = client.recognize(config=config, audio=audio)
@@ -53,7 +82,11 @@ def transcribe_wav(file_path):
             print(f"Transcript: {result.alternatives[0].transcript}")
             print(f"Confidence: {result.alternatives[0].confidence}")
 
-        return response
+        transcript = ""
+        for result in response.results:
+            transcript += result.alternatives[0].transcript.strip() + " "
+
+        return transcript.strip()
 
 
 if __name__ == '__main__':

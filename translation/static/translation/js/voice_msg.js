@@ -153,10 +153,20 @@ document.addEventListener('DOMContentLoaded', function(){
                 
                 <audio id="voice-audio" class="hidden" src="${data.voice_file_url}"></audio>
             </div>
-            <time class="chat-footer text-base-content/80">${messageTime}</time>
         `;
-
+        if (data.username === currentUser){
+            div.innerHTML += `<time class="text-base-content/80 chat-footer">${messageTime}</time>`;
+        } 
         chatbox.appendChild(div);
+        if (data.receiver === currentUser){
+            const transcribe_div = document.createElement("div");
+            transcribe_div.className = "chat chat-receiver";
+            transcribe_div.innerHTML = `
+                <div class="chat-bubble">${data.translated_text}</div>
+                <time class="text-base-content/80 chat-footer">${messageTime} &bull; <span class="italic">Translated from Audio<span></time>
+            `;
+            chatbox.appendChild(transcribe_div);
+        };
         bindVoiceMessageEvents(div.querySelector(".voice-message-bubble"));
         scrollToBottom(100);
     };

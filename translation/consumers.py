@@ -1,3 +1,4 @@
+import io
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth.models import User
@@ -15,7 +16,7 @@ from asgiref.sync import sync_to_async
 from .translate import translate_text
 from channels.db import database_sync_to_async
 from django.conf import settings
-from .transcribe import convert_ogg_to_wav, transcribe_wav
+from .transcribe import convert_ogg_to_wav, convert_ogg_to_wav_from_memory,  transcribe_wav
 
 User = get_user_model()
 
@@ -142,34 +143,47 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
 
     async def handle_voice_message(self, data):
+        lang_map = {
+            "hi": "hindi",
+            "kn": "kannada",
+            "ml": "malayalam",
+            "ta": "tamil",
+            "te": "telugu",
+            "en": "english"
+        }
         base64_audio = data['voice_file'].split(',')[1]
         filename = data['voice_filename']
         sender = data['sender']
         receiver = data['receiver']
         senttime = data['senttime']
         room_name = data['room_name']
+        sender_lang = await get_fav_language(sender)
+        receiver_lang = await get_fav_language(receiver)
+
         # Decode audio and save
         audio_data = base64.b64decode(base64_audio)
+        audio_file = io.BytesIO(audio_data)
         audio_dir = 'media/uploads/voice'
         os.makedirs(audio_dir, exist_ok=True)
-        audio_path = os.path.join(audio_dir, filename)
-        with open(audio_path, 'wb') as f:
-            f.write(audio_data)
+        wav_filename = filename.replace('.ogg', '.wav')
+        wav_path = os.path.join(audio_dir, wav_filename)
 
-        # Transcribe & translate
-        # transcription = await sync_to_async(transcribe_audio)(audio_path)
-        # translated_text = await sync_to_async(translate_text)(transcription, receiver.favorite_language)
+        convert_ogg_to_wav_from_memory(audio_data, wav_path)
+
+        transcribed_text = await sync_to_async(transcribe_wav)(wav_path, lang_map[sender_lang])
+        translated_text = transcribed_text
 
         # Save to DB
         print("Received Voice Message from Client:\n", data)
         voice_msg = await sync_to_async(Message.objects.create)(
             sender=sender,
             receiver=receiver,
-            message_file=f'uploads/voice/{filename}',
-            # receiver_msg=translated_text,
+            message_file=f'uploads/voice/{wav_filename}',
+            transcribed_text=transcribed_text,
+            translated_text=transcribed_text,
             message_type='voice',
-            sender_language=await get_fav_language(sender),
-            receiver_language=await get_fav_language(receiver)
+            sender_language=sender_lang,
+            receiver_language=receiver_lang
         )
 
         # Send back to group
@@ -177,14 +191,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             {
                 "type": "voice",
-                "voice_file_url": f"/media/uploads/voice/{filename}",
-                "voice_filename": filename,
+                "voice_file_url": f"/media/uploads/voice/{wav_filename}",
+                "voice_filename": wav_filename,
                 "voice_filesize": voice_msg.file_size,
                 "voice_file_extension": voice_msg.file_extension,
                 "sender": sender.username,
                 "receiver": receiver.username,
                 "username": sender.username,
-                # "transcription": translated_text,
+                "transcribed_text": transcribed_text,
+                "translated_text": translated_text,
                 "room_name": room_name,
                 "senttime": senttime
             }
@@ -227,7 +242,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             "sender": event.get("sender", "UnknownSender"), 
             "receiver": event.get("receiver", "UnknownReceiver"),
             "username": event.get("username", ""),
-            # "transcription": translated_text,
+            "transcribed_text": event.get("transcribed_text", ""),
+            "translated_text": event.get("translated_text", ""),
             "room_name": event.get("room_name", ""),
             "senttime": event.get("senttime", ""),
         }))

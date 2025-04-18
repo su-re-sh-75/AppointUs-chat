@@ -215,8 +215,16 @@
                                         
                                         <audio id="voice-audio" class="hidden" src="{{ message.message_file.url }}"></audio>
                                     </div>
-                                    <time class="text-base-content/80 chat-footer">{{ message.sent_time|date:"h:i A" }}</time>
+                                    {% if request.user == message.sender %}
+                                        <time class="text-base-content/80 chat-footer">{{ message.sent_time|date:"h:i A" }}</time>
+                                    {% endif %}
                                 </div>
+                                {% if request.user == message.receiver %}
+                                <div class="chat chat-receiver">
+                                    <div class="chat-bubble">{{ message.translated_text }}</div>
+                                    <time class="text-base-content/80 chat-footer">{{ message.sent_time|date:"h:i A" }} &bull; <span class="italic">Translated from Audio<span></time>
+                                </div>
+                                {% endif %}
                             {% else %}
                                 <div class="chat {% if message.sender == request.user %} chat-sender {% else %} chat-receiver {% endif %}">
                                     <div class="chat-header text-base-content/80">

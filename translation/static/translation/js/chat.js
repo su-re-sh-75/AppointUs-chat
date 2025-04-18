@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function(){
                 <div class="chat-bubble">${displayMessage}</div>
                 <time class="text-base-content/80 chat-footer">${messageTime}</time>
             `;
-            chatbox.appendChild(div);
+            chatbox.appendChild(div);   
 
             scrollToBottom(100);
 
