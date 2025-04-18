@@ -61,26 +61,6 @@ def chat_room(request, room_name):
         'search_query': search_query 
     })
 
-def chat_file_upload(request, room_name):
-    if request.FILES:
-        file = request.FILES['file']
-        receiver_user = User.objects.get(username=room_name)
-        message = Message.objects.create(
-            sender = request.user,
-            receiver = receiver_user,
-            message_file = file
-        )
-
-        channel_layer = get_channel_layer()
-        event = {
-            'type': 'message_handler',
-            'message_id': message.id
-        }
-        async_to_sync(channel_layer.group_send)(
-            room_name, event
-        )
-    return HttpResponse()
-
 @csrf_protect
 def update_language(request):
     if request.method == 'POST':

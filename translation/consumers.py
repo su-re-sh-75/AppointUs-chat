@@ -15,7 +15,7 @@ from asgiref.sync import sync_to_async
 from .translate import translate_text
 from channels.db import database_sync_to_async
 from django.conf import settings
-# from .transcribe import transcribe_audio
+from .transcribe import convert_ogg_to_wav, transcribe_wav
 
 User = get_user_model()
 

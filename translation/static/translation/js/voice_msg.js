@@ -44,7 +44,10 @@ document.addEventListener('DOMContentLoaded', function(){
     setupAudio();
 
     function setupStream(stream){
-        recorder = new MediaRecorder(stream);
+        recorder = new MediaRecorder(stream, {
+            mimeType: 'audio/webm; codecs=opus',
+            audioBitsPerSecond: 128000
+        });
 
         recorder.ondataavailable = e =>{
             audioChunks.push(e.data);

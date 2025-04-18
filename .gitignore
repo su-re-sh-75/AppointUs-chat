@@ -2,3 +2,5 @@ env/
 node_modules/
 **/__pycache__/
 media/
+appointus-chat-translation-c03f51a6c75d.json
+converted_audio/
