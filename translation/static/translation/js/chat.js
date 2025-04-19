@@ -168,7 +168,14 @@ document.addEventListener('DOMContentLoaded', function(){
             scrollToBottom(100);
 
             // Update the last message in the sidebar
-            const chatEntry = document.querySelector(`a[data-id="${data.room_name}"]`);
+            const allChatEntries = document.querySelectorAll('a[data-id]');
+            let chatEntry = null;
+
+            allChatEntries.forEach(entry => {
+                if (entry.dataset.id.trim().toLowerCase() === data.room_name.trim().toLowerCase()) {
+                    chatEntry = entry;
+                }
+            });
             
             if (chatEntry) {
                 const lastMessageElement = chatEntry.querySelector("#last-message");

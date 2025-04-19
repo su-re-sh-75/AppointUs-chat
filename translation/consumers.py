@@ -13,7 +13,7 @@ import os
 from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
 from asgiref.sync import sync_to_async
-from .translate import translate_text
+from .translate import google_translate
 from channels.db import database_sync_to_async
 from django.conf import settings
 from .transcribe import convert_ogg_to_wav, convert_ogg_to_wav_from_memory,  transcribe_wav
@@ -73,7 +73,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 message = data.get("message", "")
 
                 if sender_lang != receiver_lang:
-                    translated_message = await translate_text(data["message"], receiver_lang)
+                    translated_message = await sync_to_async(google_translate)(data["message"], receiver_lang)
                 else:
                     translated_message = message
 
@@ -171,7 +171,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         convert_ogg_to_wav_from_memory(audio_data, wav_path)
 
         transcribed_text = await sync_to_async(transcribe_wav)(wav_path, lang_map[sender_lang])
-        translated_text = transcribed_text
+        if sender_lang != receiver_lang:
+            translated_text = await sync_to_async(google_translate)(transcribed_text, receiver_lang)
+        else:
+            translated_text = transcribed_text
+
 
         # Save to DB
         print("Received Voice Message from Client:\n", data)
@@ -180,7 +184,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             receiver=receiver,
             message_file=f'uploads/voice/{wav_filename}',
             transcribed_text=transcribed_text,
-            translated_text=transcribed_text,
+            translated_text=translated_text,
             message_type='voice',
             sender_language=sender_lang,
             receiver_language=receiver_lang
