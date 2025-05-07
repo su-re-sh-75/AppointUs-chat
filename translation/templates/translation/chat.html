@@ -91,16 +91,19 @@
         <!-- chat navbar -->
         <nav class="navbar bg-base-100 sticky z-50 top-0 border-b gap-4 drop-shadow-sm">
             <div class="navbar-start items-center">
-              <p class="text-base-content text-xl font-semibold">
-                {{ room_name|title }}
-              </p>
+                <div class="w-10 rounded-full">
+                    <img src="https://avatar.iran.liara.run/public/boy" alt="{{ room_name }}'s Pfp" class="profile-icon rounded mr-3 size-9" style="object-fit: cover"/>
+                </div>
+                <p class="pl-2 text-base-content text-xl font-semibold">
+                    {{ room_name|title }}
+                </p>
             </div>
             <div class="navbar-end flex items-center gap-4">
                 <button class="btn btn-sm btn-text btn-circle size-8 md:hidden btn-soft btn-primary">
                     <span class="icon-[tabler--search] size-[1.375rem]"></span>
                 </button>
                 <div>
-                    <select name="fav_language" id="fav_language" aria-label="select" class="select">
+                    <select name="fav_language" id="fav_language" aria-label="select" class="select w-max shrink-0">
                         <!-- Indian Languages -->
                         <option value="hi" {% if request.user.customuser.fav_language == "hi" %}selected{% endif %}>Hindi</option>
                         <option value="kn" {% if request.user.customuser.fav_language == "kn" %}selected{% endif %}>Kannada</option>
@@ -172,15 +175,13 @@
             <div id="chatbox" class="flex flex-col p-3 h-full bg-slate-100 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] flex-1 pb-16" data-theme="corporate">
                 {% if chats %} 
 					{% for message in chats %}
-						{% if message.sender_msg %}
+						{% if message.message_type == "text" %}
 							<div class="chat {% if message.sender == request.user %} chat-sender {% else %} chat-receiver {% endif %}">
-                                <div class="chat-header text-base-content/80">
-                                    {% if request.user == message.sender %}
-                                        You
-                                    {% elif request.user == message.receiver %}
+                                {% if request.user == message.receiver %}
+                                    <div class="chat-header text-base-content/80"> 
                                         {{message.sender}}
-                                    {% endif %}
-                                </div>
+                                    </div>
+                                {% endif %}
 								<div class="chat-bubble">
                                     {% if request.user == message.sender %}
                                         {{ message.sender_msg }}
@@ -190,16 +191,14 @@
                                 </div>
 								<time class="text-base-content/80 chat-footer">{{ message.sent_time|date:"h:i A" }}</time>
 							</div>
-						{% elif message.message_file %}
+						{% elif message.message_type == "file" %}
                             {% if message.is_image %}
                                 <div class="chat {% if message.sender == request.user %} chat-sender {% else %} chat-receiver {% endif %}">
-                                    <div class="chat-header text-base-content/80">
-                                        {% if request.user == message.sender %}
-                                            You
-                                        {% elif request.user == message.receiver %}
+                                    {% if request.user == message.receiver %}
+                                        <div class="chat-header text-base-content/80"> 
                                             {{message.sender}}
-                                        {% endif %}
-                                    </div>
+                                        </div>
+                                    {% endif %}
                                     <div class="chat-bubble flex flex-col gap-4">
                                         <button class="border-base-100 w-52 overflow-hidden rounded-md border" aria-label="Image Button">
                                             <img class="w-full" src="{{ message.message_file.url }}" alt="Image attachment" />
@@ -207,44 +206,13 @@
                                     </div>
                                     <time class="text-base-content/80 chat-footer">{{ message.sent_time|date:"h:i A" }}</time>
                                 </div>
-                            {% elif message.message_type == "voice" %}
-                                <div class="chat {% if message.sender == request.user %} chat-sender {% else %} chat-receiver {% endif %}">
-                                    <div class="chat-header text-base-content/80">
-                                        {% if request.user == message.sender %}
-                                            You
-                                        {% elif request.user == message.receiver %}
-                                            {{message.sender}}
-                                        {% endif %}
-                                    </div>
-                                    <div class="chat-bubble voice-message-bubble flex items-center gap-3 px-3 py-2 rounded-lg bg-base-200 w-2/5">
-                                        <button id="voice-play-btn" class="w-8 h-8 rounded-full bg-primary text-primary-content flex items-center justify-center shrink-0">
-                                            <svg id="play-icon" class="size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play-icon lucide-play"><polygon points="6 3 20 12 6 21 6 3"/></svg>
-                                            <svg id="pause-icon" class="size-4 hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pause-icon lucide-pause"><rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/></svg>
-                                        </button>
-                                        <input type="range" name="voice-progress" id="voice-progress" class="range range-xs appearance-none bg-white w-full h-1 rounded-lg" aria-label="range" max="100">
-                                        <span id="voice-time" class="text-xs ml-auto"></span>
-                                        
-                                        <audio id="voice-audio" class="hidden" src="{{ message.message_file.url }}"></audio>
-                                    </div>
-                                    {% if request.user == message.sender %}
-                                        <time class="text-base-content/80 chat-footer">{{ message.sent_time|date:"h:i A" }}</time>
-                                    {% endif %}
-                                </div>
-                                {% if request.user == message.receiver %}
-                                <div class="chat chat-receiver">
-                                    <div class="chat-bubble">{{ message.translated_text }}</div>
-                                    <time class="text-base-content/80 chat-footer">{{ message.sent_time|date:"h:i A" }} &bull; <span class="italic">Translated from Audio<span></time>
-                                </div>
-                                {% endif %}
                             {% else %}
                                 <div class="chat {% if message.sender == request.user %} chat-sender {% else %} chat-receiver {% endif %}">
-                                    <div class="chat-header text-base-content/80">
-                                        {% if request.user == message.sender %}
-                                            You
-                                        {% elif request.user == message.receiver %}
+                                    {% if request.user == message.receiver %}
+                                        <div class="chat-header text-base-content/80"> 
                                             {{message.sender}}
-                                        {% endif %}
-                                    </div>
+                                        </div>
+                                    {% endif %}
                                     <div class="chat-bubble flex flex-col gap-4">
                                         <div class="bg-base-100 rounded-md">
                                             <button class="flex items-center gap-2 px-3 py-2 max-sm:w-11/12">
@@ -268,6 +236,33 @@
                                         </div>
                                     </div>
                                     <time class="text-base-content/80 chat-footer">{{ message.sent_time|date:"h:i A" }}</time>
+                                </div>
+                            {% endif %}
+                        {% elif message.message_type == "voice" %}
+                            <div class="chat {% if message.sender == request.user %} chat-sender {% else %} chat-receiver {% endif %}">
+                                {% if request.user == message.receiver %}
+                                    <div class="chat-header text-base-content/80"> 
+                                        {{message.sender}}
+                                    </div>
+                                {% endif %}
+                                <div class="chat-bubble voice-message-bubble flex items-center gap-3 px-3 py-2 rounded-lg bg-base-200 w-2/5">
+                                    <button id="voice-play-btn" class="w-8 h-8 rounded-full bg-primary text-primary-content flex items-center justify-center shrink-0">
+                                        <svg id="play-icon" class="size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play-icon lucide-play"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                                        <svg id="pause-icon" class="size-4 hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pause-icon lucide-pause"><rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/></svg>
+                                    </button>
+                                    <input type="range" name="voice-progress" id="voice-progress" class="range range-xs appearance-none bg-white w-full h-1 rounded-lg" aria-label="range" max="100">
+                                    <span id="voice-time" class="text-xs ml-auto"></span>
+                                    
+                                    <audio id="voice-audio" class="hidden" src="{{ message.message_file.url }}"></audio>
+                                </div>
+                                {% if request.user == message.sender %}
+                                    <time class="text-base-content/80 chat-footer">{{ message.sent_time|date:"h:i A" }}</time>
+                                {% endif %}
+                            </div>
+                            {% if request.user == message.receiver %}
+                                <div class="chat chat-receiver">
+                                    <div class="chat-bubble">{{ message.translated_text }}</div>
+                                    <time class="text-base-content/80 chat-footer">{{ message.sent_time|date:"h:i A" }} &bull; <span class="italic">Translated from Audio<span></time>
                                 </div>
                             {% endif %}
 						{% endif %}

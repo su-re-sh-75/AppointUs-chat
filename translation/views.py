@@ -28,10 +28,7 @@ def chat_room(request, room_name):
     chats = Message.objects.filter(
         (Q(sender=request.user) & Q(receiver__username=room_name)) |
         (Q(receiver=request.user) & Q(sender__username=room_name))
-    )
-
-    if search_query:
-        chats = chats.filter(Q(content__icontains=search_query))  
+    )  
 
     chats = chats.order_by('sent_time') 
     user_last_messages = []
