@@ -5585,6 +5585,12 @@ textarea:focus-visible {
   border-inline-end-width: calc(var(--tab-border, 1px) + 1px);
 }
 
+.text-bg-soft-primary {
+  background-color: var(--fallback-p,oklch(var(--p)/0.2));
+  --tw-text-opacity: 1;
+  color: var(--fallback-p,oklch(var(--p)/var(--tw-text-opacity, 1)));
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -5681,6 +5687,11 @@ textarea:focus-visible {
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
+}
+
+.my-1 {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
 }
 
 .my-10 {
@@ -5926,6 +5937,14 @@ textarea:focus-visible {
   width: 100%;
 }
 
+.w-3\/12 {
+  width: 25%;
+}
+
+.w-1\/4 {
+  width: 25%;
+}
+
 .min-w-28 {
   min-width: 7rem;
 }
@@ -5936,6 +5955,10 @@ textarea:focus-visible {
 
 .min-w-60 {
   min-width: 15rem;
+}
+
+.min-w-0 {
+  min-width: 0px;
 }
 
 .max-w-56 {
@@ -6219,11 +6242,6 @@ textarea:focus-visible {
   background-color: var(--fallback-bs,oklch(var(--bs)/0.7));
 }
 
-.bg-gray-200 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(229 231 235 / var(--tw-bg-opacity, 1));
-}
-
 .bg-green-100 {
   --tw-bg-opacity: 1;
   background-color: rgb(220 252 231 / var(--tw-bg-opacity, 1));
@@ -6355,11 +6373,6 @@ textarea:focus-visible {
   padding-bottom: 0.75rem;
 }
 
-.py-4 {
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-}
-
 .pb-16 {
   padding-bottom: 4rem;
 }
@@ -6370,6 +6383,14 @@ textarea:focus-visible {
 
 .pr-10 {
   padding-right: 2.5rem;
+}
+
+.pr-2 {
+  padding-right: 0.5rem;
+}
+
+.pt-2 {
+  padding-top: 0.5rem;
 }
 
 .text-center {
@@ -6843,6 +6864,11 @@ textarea:focus-visible {
 .hover\:bg-indigo-500:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(99 102 241 / var(--tw-bg-opacity, 1));
+}
+
+.hover\:bg-primary:hover {
+  --tw-bg-opacity: 1;
+  background-color: var(--fallback-p,oklch(var(--p)/var(--tw-bg-opacity, 1)));
 }
 
 .hover\:text-red-500:hover {

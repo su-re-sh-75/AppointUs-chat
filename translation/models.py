@@ -1,6 +1,8 @@
 from django.db import models
 import os
 from django.contrib.auth.models import User
+import subprocess
+from django.conf import settings
 
 class Message(models.Model):
     LANGUAGE_CHOICES = [
@@ -49,6 +51,31 @@ class Message(models.Model):
                 return f"{size_bytes / (1024 * 1024):.2f} MB"
         return None
 
+    @property
+    def voice_duration(self):
+        if self.message_type == "voice" and self.message_file:
+            try:
+                filepath = os.path.join(settings.MEDIA_ROOT, self.message_file.name)
+                result = subprocess.run(
+                    [
+                        "ffprobe",
+                        "-v", "error",
+                        "-show_entries", "format=duration",
+                        "-of", "default=noprint_wrappers=1:nokey=1",
+                        filepath
+                    ],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT
+                )
+                duration = float(result.stdout.decode().strip())
+                minutes = int(duration // 60)
+                seconds = int(duration % 60)
+                return f"{minutes}:{seconds:02d}"
+            except Exception as e:
+                print(f"FFprobe failed: {e}")
+                return "0:00"
+        return "0:00"
+    
     def __str__(self):
         if self.message_file:
             return f"{self.sender} -> {self.receiver}: [File] {self.filename}"

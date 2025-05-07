@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="{% static 'translation/src/output.css' %}">
     <link rel="icon" type="image/png" href="{% static 'translation/images/LOGO.png' %}">
 </head>
-<body class="w-full h-screen flex">
+<body class="w-full h-screen flex" data-theme="corporate">
     {% if messages %}
         <div class="absolute top-12 right-4 z-100" id="django-messages">
             {% for message in messages %}
@@ -24,7 +24,7 @@
     {% endif %}
     
 	<div id="room-data" data-room-name="{{ room_name }}" data-current-user="{{ request.user.username }}"></div>
-    <section id="sidebar" class="w-1/5 border-slate-100 border-r-2">
+    <section id="sidebar" class="w-1/4 border-slate-100 border-r-2">
         <button type="button" class="btn btn-text max-sm:btn-square sm:hidden" aria-haspopup="dialog" aria-expanded="false" aria-controls="logo-sidebar" data-overlay="#logo-sidebar" >
             <span class="icon-[tabler--menu-2] size-5"></span>
         </button>
@@ -32,38 +32,49 @@
 		<aside id="logo-sidebar">
 			<div class="drawer-header p-5 border-b mb-4">
 				<div class="flex items-center gap-3">
-					<!-- <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-						<path fill-rule="evenodd" clip-rule="evenodd" d="M17.6745 16.9224L12.6233 10.378C12.2167 9.85117 11.4185 9.8611 11.0251 10.3979L6.45728 16.631C6.26893 16.888 5.96935 17.0398 5.65069 17.0398H3.79114C2.9635 17.0398 2.49412 16.0919 2.99583 15.4336L11.0224 4.90319C11.4206 4.38084 12.2056 4.37762 12.608 4.89668L20.9829 15.6987C21.4923 16.3558 21.024 17.3114 20.1926 17.3114H18.4661C18.1562 17.3114 17.8638 17.1677 17.6745 16.9224ZM12.5866 15.5924L14.8956 18.3593C15.439 19.0105 14.976 20 14.1278 20H9.74075C8.9164 20 8.4461 19.0586 8.94116 18.3994L11.0192 15.6325C11.4065 15.1169 12.1734 15.0972 12.5866 15.5924Z" fill="oklch(var(--p))"/></svg> -->
-					<h3 class="drawer-title text-xl font-semibold">APPOINTUS</h3>
+					<h3 class="drawer-title text-xl font-semibold">Chats</h3>
 				</div>
 			</div>
             
             <div class="drawer-body px-2 overflow-y-auto">
               <ul class="menu p-0" id="contact-list">
                 {% for item in user_last_messages %}
-                    <li class="border-b w-full" id="contact-list-item">
-                        <a href="{% url 'translation:chat' item.user.username %}" class="{% if item.user.username == room_name %} active-chat bg-gray-200 {% endif %}w-full py-4 my-2" data-id="{{ room_name }}">
+                    <li class="border-b w-full overflow-hidden" id="contact-list-item-{{ room_name }}" data-theme="corporate">
+                        <a href="{% url 'translation:chat' item.user.username %}" class="{% if item.user.username == room_name %} active-chat text-bg-soft-primary {% endif %}w-full max-w-full overflow-hidden py-2 my-1 flex" data-id="{{ room_name }}">
 
-							<img src="https://ui-avatars.com/api/?name={{ item.user.username|urlencode }}&size=64&background=random"
+							<img src="https://avatar.iran.liara.run/public/boy"
 							alt="{{ item.user.username }}'s Profile Image"
 							class="profile-icon rounded mr-3 size-9"
 							style="object-fit: cover"/>
 			
 							<!-- Message Content and Username -->
-							<div>
-								<p class="text-md font-semibold truncate">{{ item.user.username|title }}</p>
+							<div class="flex-1 min-w-0">
+                                <div class="flex justify-between">
+                                    <p class="text-md font-semibold truncate">{{ item.user.username|title }}</p>
+                                    <p class="text-nowrap text-xs text-right" id="msg-time-{{ room_name }}">{{ item.last_message.sent_time|date:"h:i A" }}</p>
+                                </div>
 								<!-- Last message preview -->
-								<div class="flex justify-between">
-									{% if item.last_message %}
-										<p class="truncate text-xs" id="last-message">
+								<div class="flex justify-between pt-2">
+									{% if item.last_message.message_type == "text" %}
+										<div class="w-full" id="last-message-{{ room_name }}">
 											{% if item.last_message.sender == request.user %}
-                                                You: {{ item.last_message.sender_msg|truncatechars:20 }}
+                                                <p class="truncate w-full">You: {{ item.last_message.sender_msg }}</p>
                                             {% else %}
-                                                {{ item.last_message.receiver }}: {{ item.last_message.receiver_msg|truncatechars:20 }}
+                                                <p class="truncate w-full">{{ item.last_message.receiver_msg }}</p>
                                             {% endif %}
-											
-										</p>
-										<p class="text-nowrap text-xs text-right" id="msg-time">{{ item.last_message.sent_time|date:"h:i A" }}</p>
+										</div>
+									{% elif item.last_message.message_type == "file" %}
+                                        <div class="w-full flex items-center" id="last-message-{{ room_name }}">
+                                            <!-- file svg -->
+                                            <svg class="h-6 w-6 pr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-icon lucide-file"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+                                            <p class="truncate w-full">{{ item.last_message.filename }}</p>
+                                        </div>
+									{% elif item.last_message.message_type == "voice" %}
+                                        <div class="w-full flex items-center" id="last-message-{{ room_name }}">
+                                            <!-- voice/mic svg -->
+                                            <svg class="h-6 w-6 pr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mic-icon lucide-mic"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                                            <p>{{ item.last_message.voice_duration }}</p>
+                                        </div>
 									{% else %}
 										<p class="text-xs">No messages yet</p>
 									{% endif %}
@@ -85,7 +96,7 @@
               </p>
             </div>
             <div class="navbar-end flex items-center gap-4">
-                <button class="btn btn-sm btn-text btn-circle size-[2.125rem] md:hidden">
+                <button class="btn btn-sm btn-text btn-circle size-8 md:hidden btn-soft btn-primary">
                     <span class="icon-[tabler--search] size-[1.375rem]"></span>
                 </button>
                 <div>
@@ -280,14 +291,14 @@
                 <div class="flex space-x-2 m-4 sticky bottom-4 z-50">
                     <!-- Emoji Picker Button (Icon) -->
                     <div id="emoji-picker-container">
-                        <button id="emoji-btn" class="p-2 rounded-full text-accent hover:bg-accent hover:text-slate-50 flex items-center justify-center w-10 h-10">
+                        <button id="emoji-btn" class="p-2 rounded-full text-primary hover:bg-primary hover:text-slate-50 flex items-center justify-center w-10 h-10">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-smile-plus-icon lucide-smile-plus"><path d="M22 11v1a10 10 0 1 1-9-10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/><path d="M16 5h6"/><path d="M19 2v6"/></svg>
                         </button>
                     </div>
 
                     <!-- File Upload Button (Icon) -->
                     <div class="relative inline-block">
-                        <label for="file-upload" class="cursor-pointer p-2 rounded-full text-accent hover:bg-accent hover:text-slate-50 flex items-center justify-center w-10 h-10">
+                        <label for="file-upload" class="cursor-pointer p-2 rounded-full text-primary hover:bg-primary hover:text-slate-50 flex items-center justify-center w-10 h-10">
                             <input id="file-upload" type="file" class="hidden" name="attachments" multiple>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-paperclip"><path d="M13.234 20.252 21 12.3"/><path d="m16 6-8.414 8.586a2 2 0 0 0 0 2.828 2 2 0 0 0 2.828 0l8.414-8.586a4 4 0 0 0 0-5.656 4 4 0 0 0-5.656 0l-8.415 8.585a6 6 0 1 0 8.486 8.486"/></svg>
                         </label>
@@ -305,7 +316,7 @@
                     
                     <!-- Mic button -->
                     <div class="relative inline-block">
-                        <button id="mic-btn" class="p-2 rounded-full text-accent hover:bg-accent hover:text-slate-50 flex items-center justify-center w-10 h-10">    
+                        <button id="mic-btn" class="p-2 rounded-full text-primary hover:bg-primary hover:text-slate-50 flex items-center justify-center w-10 h-10">    
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mic-icon lucide-mic"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
                         </button>
                         
@@ -316,7 +327,7 @@
                         </div>
                     </div>
                     
-                    <button class="btn btn-accent" id="submit_button">
+                    <button class="btn btn-primary" id="submit_button">
                         Send
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-horizontal"><path d="M3.714 3.048a.498.498 0 0 0-.683.627l2.843 7.627a2 2 0 0 1 0 1.396l-2.842 7.627a.498.498 0 0 0 .682.627l18-8.5a.5.5 0 0 0 0-.904z"/><path d="M6 12h16"/></svg>
                     </button>

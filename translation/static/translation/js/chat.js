@@ -168,47 +168,14 @@ document.addEventListener('DOMContentLoaded', function(){
             scrollToBottom(100);
 
             // Update the last message in the sidebar
-            const allChatEntries = document.querySelectorAll('a[data-id]');
-            let chatEntry = null;
-
-            allChatEntries.forEach(entry => {
-                if (entry.dataset.id.trim().toLowerCase() === data.room_name.trim().toLowerCase()) {
-                    chatEntry = entry;
-                }
-            });
+            const lastMessageTime = document.querySelector(`#msg-time-${roomName}`);
+            const lastMessageContent = document.querySelector(`#last-message-${roomName}`);
             
-            if (chatEntry) {
-                const lastMessageElement = chatEntry.querySelector("#last-message");
-                lastMessageElement.innerHTML = 
-                    (data.username === currentUser ? "You: " : "") +
-                    data.message.substring(0, 20); 
-
-                const timestampElement = chatEntry.querySelector("#msg-time");
-                const messageTime = new Date(data.senttime).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true,
-                    timeZone: "Asia/Kolkata"
-                });
-                timestampElement.textContent = messageTime;
-
-                // update the chats list sorting by the last message timestamp in descending order
-                const chats = document.querySelectorAll("#contact-list-item");
-                const chatsArray = Array.from(chats);
-                const chatsSorted = chatsArray.sort((a, b) => {
-                    const aTime = a.querySelector("#msg-time").innerHTML;
-                    const bTime = b.querySelector("#msg-time").innerHTML;
-                    return aTime < bTime ? 1 : -1;
-                });
-
-                const contacts = document.querySelector("#contact-list");
-                contacts.innerHTML = "";
-                chatsSorted.forEach((chat) => {
-                    contacts.appendChild(chat);
-                });
-            }else {
-                console.error("No active chat selected");
-            }
+            lastMessageTime.textContent = messageTime;
+            lastMessageContent.classList.remove('items-center');
+            lastMessageContent.classList.add('flex');
+            lastMessageContent.innerHTML = (data.sender === currentUser)? `<p>You:</p> <p class="truncate w-full">${displayMessage}</p>` : `<p class="truncate w-full">${displayMessage}</p>`;
+            
         } else if(data.type === "file"){
             console.log(data)
             const chatbox = document.querySelector("#chatbox");
@@ -263,6 +230,17 @@ document.addEventListener('DOMContentLoaded', function(){
             }
             chatbox.appendChild(div);
             scrollToBottom(100);
+
+            // update sidebar last message
+            const lastMessageTime = document.querySelector(`#msg-time-${roomName}`);
+            const lastMessageContent = document.querySelector(`#last-message-${roomName}`);
+            
+            lastMessageTime.textContent = messageTime;
+            lastMessageContent.classList.add('flex', 'items-center');
+            lastMessageContent.innerHTML = `
+            <svg class="h-6 w-6 pr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-icon lucide-file"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+            <p class="truncate w-full">${fileName}</p>
+            `;
         } else if (data.type == 'voice'){
             handleReceivedVoiceMessage(data);
         }else {
@@ -296,5 +274,4 @@ document.addEventListener('DOMContentLoaded', function(){
             alertElem.style.display = "none";
         }
     }, 5000);
-
 })
