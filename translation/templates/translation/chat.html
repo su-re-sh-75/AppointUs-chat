@@ -31,8 +31,13 @@
           
 		<aside id="logo-sidebar">
 			<div class="drawer-header p-5 border-b mb-4">
-				<div class="flex items-center gap-3">
-					<h3 class="drawer-title text-xl font-semibold">Chats</h3>
+				<div class="flex items-center gap-2">
+                    <div class="rounded overflow-hidden size-9">
+                        <img src="{% static 'translation/images/LOGO.png' %}"
+                            alt="{{ item.user.username }}'s pfp"
+                            class="object-cover w-full h-full scale-125 shrink-0" />
+                    </div>
+					<h3 class="drawer-title text-xl font-semibold">AppointUs</h3>
 				</div>
 			</div>
             
@@ -50,8 +55,8 @@
 							<!-- Message Content and Username -->
 							<div class="flex-1 min-w-0">
                                 <div class="flex justify-between">
-                                    <p class="text-md font-semibold truncate">{{ item.user.username|title }}</p>
-                                    <p class="text-nowrap text-xs text-right" id="msg-time-{{ room_name }}">{{ item.last_message.sent_time|date:"h:i A" }}</p>
+                                    <p class="text-md font-semibold truncate shrink-0">{{ item.user.username|title }}</p>
+                                    <p class="text-nowrap text-xs text-right shrink hidden md:block" id="msg-time-{{ room_name }}">{{ item.last_message.sent_time|date:"h:i A" }}</p>
                                 </div>
 								<!-- Last message preview -->
 								<div class="flex justify-between pt-2">

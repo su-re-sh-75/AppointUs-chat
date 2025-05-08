@@ -131,12 +131,11 @@ document.addEventListener('DOMContentLoaded', function(){
             }
         }
     });
-    
-
+        
     // When msg is received in websocket from backend
     chatSocket.onmessage = function (e) {
         const data = JSON.parse(e.data);
-
+        
         if (data.type === "text") {
             // Display the new message in the chatbox
             const chatbox = document.querySelector("#chatbox");
@@ -243,8 +242,8 @@ document.addEventListener('DOMContentLoaded', function(){
             lastMessageTime.textContent = messageTime;
             lastMessageContent.classList.add('flex', 'items-center');
             lastMessageContent.innerHTML = `
-            <svg class="h-6 w-6 pr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-icon lucide-file"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
-            <p class="truncate w-full">${fileName}</p>
+                <svg class="h-6 w-6 pr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-icon lucide-file"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
+                <p class="truncate w-full">${fileName}</p>
             `;
         } else if (data.type == 'voice'){
             handleReceivedVoiceMessage(data);
@@ -280,52 +279,7 @@ document.addEventListener('DOMContentLoaded', function(){
         }
     }, 5000);
 
-
-    // open, close Image Modal on preview click
-    // const modal = document.getElementById("fullscreen-modal");
-    // const modalImg = document.getElementById("fullscreen-image");
-    // const imgModalCloseBtn = document.getElementById("close-img-modal-btn");
-    // const modalBackdrop = document.getElementById("modal-backdrop");
-    // const openButtons = document.querySelectorAll(".image-preview-btn");
-
-    // openButtons.forEach((btn, i) => {
-    //   btn.addEventListener("click", () => {
-    //     const imgSrc = btn.getAttribute("data-src");
-    //     if (!imgSrc) {
-    //       console.error("❌ Missing image src on clicked button");
-    //       return;
-    //     }
-
-    //     modalImg.src = imgSrc;
-    //     modal.classList.remove("hidden");
-    //     modal.classList.add("overlay-open");
-    //     document.body.style.overflow = "hidden";
-    //   });
-    // });
-
-    // const closeImgModal = () => {
-    //   modal.classList.add("hidden");
-    //   modal.classList.remove("overlay-open");
-    //   modalImg.src = "";
-    //   document.body.style.overflow = "";
-    // };
-
-    // imgModalCloseBtn.addEventListener("click", () => {
-    //   closeImgModal();
-    // });
-
-    // modal.addEventListener("click", (e) => {
-    //   if (e.target === modalBackdrop) {
-    //     closeImgModal();
-    //   }
-    // });
-
-    // document.addEventListener("keydown", (e) => {
-    //   if (e.key === "Escape" && !modal.classList.contains("hidden")) {
-    //     closeImgModal();
-    //   }
-    // });
-
+    // Show fullscreen image when preview clickeds
     const modal = document.getElementById("fullscreen-modal");
     const modalImg = document.getElementById("fullscreen-image");
     const imgModalCloseBtn = document.getElementById("close-img-modal-btn");
