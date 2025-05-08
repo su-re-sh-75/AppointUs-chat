@@ -42,8 +42,8 @@
                     <li class="border-b w-full overflow-hidden" id="contact-list-item-{{ room_name }}" data-theme="corporate">
                         <a href="{% url 'translation:chat' item.user.username %}" class="{% if item.user.username == room_name %} active-chat text-bg-soft-primary {% endif %}w-full max-w-full overflow-hidden py-2 my-1 flex" data-id="{{ room_name }}">
 
-							<img src="https://avatar.iran.liara.run/public/boy"
-							alt="{{ item.user.username }}'s Profile Image"
+							<img src="{% static 'translation/images/pfp/' %}image_{{item.user.id}}.png"
+							alt="{{ item.user.username }}'s pfp"
 							class="profile-icon rounded mr-3 size-9"
 							style="object-fit: cover"/>
 			
@@ -92,7 +92,7 @@
         <nav class="navbar bg-base-100 sticky z-50 top-0 border-b gap-4 drop-shadow-sm">
             <div class="navbar-start items-center">
                 <div class="w-10 rounded-full">
-                    <img src="https://avatar.iran.liara.run/public/boy" alt="{{ room_name }}'s Pfp" class="profile-icon rounded mr-3 size-9" style="object-fit: cover"/>
+                    <img src="{% static 'translation/images/pfp/' %}image_{{receiver_user.id}}.png" alt="{{ receiver_user.username }}'s Pfp" class="profile-icon rounded mr-3 size-9" style="object-fit: cover"/>
                 </div>
                 <p class="pl-2 text-base-content text-xl font-semibold">
                     {{ room_name|title }}
@@ -125,7 +125,7 @@
                 <button id="dropdown-scrollable" type="button" class="dropdown-toggle flex items-center" aria-haspopup="menu" aria-expanded="false" aria-label="Dropdown">
                   <div class="avatar">
                     <div class="size-9.5 rounded-full">
-                      <img src="https://cdn.flyonui.com/fy-assets/avatar/avatar-1.png" alt="avatar 1" />
+                      <img src="{% static 'translation/images/pfp/' %}image_{{request.user.id}}.png" alt="{{ request.user.username }}'s pfp" />
                     </div>
                   </div>
                 </button>
@@ -133,7 +133,7 @@
                   <li class="dropdown-header gap-2">
                     <div class="avatar">
                       <div class="w-10 rounded-full">
-                        <img src="https://cdn.flyonui.com/fy-assets/avatar/avatar-1.png" alt="avatar" />
+                        <img src="{% static 'translation/images/pfp/' %}image_{{request.user.id}}.png" alt="{{ request.user.username }}'s pfp" />
                       </div>
                     </div>
                     <div>
@@ -199,8 +199,10 @@
                                             {{message.sender}}
                                         </div>
                                     {% endif %}
-                                    <div class="chat-bubble flex flex-col gap-4">
-                                        <button class="border-base-100 w-52 overflow-hidden rounded-md border" aria-label="Image Button">
+                                    <div class="chat-bubble image-message-bubble flex flex-col gap-4">
+                                        <button class="image-preview-btn border-base-100 w-52 overflow-hidden rounded-md border" type="button"
+                                            data-src="{{ message.message_file.url }}"
+                                            aria-label="Image Button">
                                             <img class="w-full" src="{{ message.message_file.url }}" alt="Image attachment" />
                                         </button>
                                     </div>
@@ -266,7 +268,7 @@
                                 </div>
                             {% endif %}
 						{% endif %}
-					{% endfor %} 
+					{% endfor %}
 				{% elif room_name != request.user.username %}
                     <div id="no-messages" class="flex justify-center w-full">
                         <p class="text-center w-1/2 border rounded-md h-8 border-green-400 bg-green-100 text-green-500">
@@ -318,7 +320,6 @@
                         <!-- Voice Popover -->
                         <div id="voice-popover" class="hidden absolute bottom-full left-1/2 -translate-x-1/2 transform mb-2 w-48 bg-white shadow-lg rounded-lg p-3 border border-gray-200">
                             <button id="voice-close-popover" class="text-gray-500 text-right hover:text-red-500 text-lg">&times;</button>
-                            <!-- <ul id="voice-list" class="text-sm text-gray-600 mt-2"></ul> -->
                         </div>
                     </div>
                     
@@ -330,6 +331,27 @@
                 {% endif %}
           </main>
     </section>
+
+    <!-- Image Modal to show when img preview is clicked -->
+    <div id="fullscreen-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80" role="dialog" tabindex="-1">
+        <div id="modal-backdrop" class="relative flex items-center justify-center h-screen">
+          <button
+            type="button"
+            class="absolute right-3 top-3 btn btn-text text-white bg-gray-200/50 hover:bg-gray-400 btn-soft btn-circle btn-sm"
+            aria-label="Close"
+            id="close-img-modal-btn"
+          >
+            <span class="icon-[tabler--x] size-4"></span>
+          </button>
+          <img
+            id="fullscreen-image"
+            class="max-w-[90vw] max-h-[90vh] object-contain block rounded-lg shadow-lg"
+            src=""
+            alt="Fullscreen Image"
+          />
+        </div>
+    </div>
+      
 
     {{slug|json_script:"room_slug"}}
 

@@ -157,9 +157,9 @@ document.addEventListener('DOMContentLoaded', function(){
             div.className = "chat " + (data.sender === currentUser ? "chat-sender" : "chat-receiver");
             
             const displayMessage = (data.sender === currentUser)? data.message : data.translated_message;
-            const messageSenderName = (currentUser === data.sender)? "You" : data.sender;
+            const messageSenderElem = (currentUser === data.sender)? `` : `<div class="chat-header text-base-content/80">${data.sender}</div>`;
             div.innerHTML = `
-                <div class="chat-header text-base-content/80">${messageSenderName}</div>
+                ${messageSenderElem}
                 <div class="chat-bubble">${displayMessage}</div>
                 <time class="text-base-content/80 chat-footer">${messageTime}</time>
             `;
@@ -191,20 +191,22 @@ document.addEventListener('DOMContentLoaded', function(){
             const div = document.createElement("div");
             div.className = "chat " + (data.username === currentUser ? "chat-sender" : "chat-receiver");
             const imageExtensions = ["JPEG", "JPG", "PNG", "GIF", "SVG", "WEBP", "AVIF"];
-            const messageSenderName = (currentUser === data.sender) ? "You" : data.sender;
+            const messageSenderElem = (currentUser === data.sender)? `` : `<div class="chat-header text-base-content/80">${data.sender}</div>`;
             if (imageExtensions.includes(fileExtension.toUpperCase())) {
                 div.innerHTML = `
-                    <div class="chat-header text-base-content/80">${messageSenderName}</div>
-                    <div class="chat-bubble">
-                        <button class="border-base-100 w-52 overflow-hidden rounded-md border" aria-label="Image Button">
-                            <img class="w-full" src="/media/uploads/${fileName}" alt="Image attachment" />
+                    ${messageSenderElem}
+                    <div class="chat-bubble image-message-bubble flex flex-col gap-4">
+                        <button class="image-preview-btn border-base-100 w-52 overflow-hidden rounded-md border" type="button"
+                            data-src="${data.file_url}"
+                            aria-label="Image Button">
+                            <img class="w-full" src="${data.file_url}" alt="Image attachment" />
                         </button>
                     </div>
                     <time class="text-base-content/80 chat-footer">${messageTime}</time>
                 `;    
             } else {
                 div.innerHTML = `
-                    <div class="chat-header text-base-content/80">${messageSenderName}</div>
+                    ${messageSenderElem}
                     <div class="chat-bubble flex flex-col gap-4">
                         <div class="bg-base-100 rounded-md">
                             <button class="flex items-center gap-2 px-3 py-2 max-sm:w-11/12">
@@ -229,6 +231,9 @@ document.addEventListener('DOMContentLoaded', function(){
                 `;
             }
             chatbox.appendChild(div);
+            if (imageExtensions.includes(fileExtension.toUpperCase())){
+                bindImagePreviewEvents(div.querySelector(".image-message-bubble"));
+            };
             scrollToBottom(100);
 
             // update sidebar last message
@@ -274,4 +279,96 @@ document.addEventListener('DOMContentLoaded', function(){
             alertElem.style.display = "none";
         }
     }, 5000);
+
+
+    // open, close Image Modal on preview click
+    // const modal = document.getElementById("fullscreen-modal");
+    // const modalImg = document.getElementById("fullscreen-image");
+    // const imgModalCloseBtn = document.getElementById("close-img-modal-btn");
+    // const modalBackdrop = document.getElementById("modal-backdrop");
+    // const openButtons = document.querySelectorAll(".image-preview-btn");
+
+    // openButtons.forEach((btn, i) => {
+    //   btn.addEventListener("click", () => {
+    //     const imgSrc = btn.getAttribute("data-src");
+    //     if (!imgSrc) {
+    //       console.error("❌ Missing image src on clicked button");
+    //       return;
+    //     }
+
+    //     modalImg.src = imgSrc;
+    //     modal.classList.remove("hidden");
+    //     modal.classList.add("overlay-open");
+    //     document.body.style.overflow = "hidden";
+    //   });
+    // });
+
+    // const closeImgModal = () => {
+    //   modal.classList.add("hidden");
+    //   modal.classList.remove("overlay-open");
+    //   modalImg.src = "";
+    //   document.body.style.overflow = "";
+    // };
+
+    // imgModalCloseBtn.addEventListener("click", () => {
+    //   closeImgModal();
+    // });
+
+    // modal.addEventListener("click", (e) => {
+    //   if (e.target === modalBackdrop) {
+    //     closeImgModal();
+    //   }
+    // });
+
+    // document.addEventListener("keydown", (e) => {
+    //   if (e.key === "Escape" && !modal.classList.contains("hidden")) {
+    //     closeImgModal();
+    //   }
+    // });
+
+    const modal = document.getElementById("fullscreen-modal");
+    const modalImg = document.getElementById("fullscreen-image");
+    const imgModalCloseBtn = document.getElementById("close-img-modal-btn");
+    const modalBackdrop = document.getElementById("modal-backdrop");
+
+    const closeImgModal = () => {
+        modal.classList.add("hidden");
+        modal.classList.remove("overlay-open");
+        modalImg.src = "";
+        document.body.style.overflow = "";
+    };
+
+    imgModalCloseBtn.addEventListener("click", closeImgModal);
+
+    modal.addEventListener("click", (e) => {
+        if (e.target === modalBackdrop) {
+            closeImgModal();
+        }
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !modal.classList.contains("hidden")) {
+            closeImgModal();
+        }
+    });
+
+    function bindImagePreviewEvents(bubble) {
+        const imgBtn = bubble.querySelector(".image-preview-btn");
+        if (!imgBtn) return;
+      
+        imgBtn.addEventListener("click", () => {
+          const imgSrc = imgBtn.getAttribute("data-src");
+          if (!imgSrc) {
+            console.error("❌ Missing image src on clicked button");
+            return;
+          }
+      
+          modalImg.src = imgSrc;
+          modal.classList.remove("hidden");
+          modal.classList.add("overlay-open");
+          document.body.style.overflow = "hidden";
+        });
+    }
+    document.querySelectorAll(".image-message-bubble").forEach((bubble) => {bindImagePreviewEvents(bubble);});
+    
 })

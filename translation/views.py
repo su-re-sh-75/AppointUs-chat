@@ -5,12 +5,7 @@ from django.contrib.auth import get_user_model
 from .models import Message
 from django.db.models import Q
 from datetime import datetime
-from channels.layers import get_channel_layer
-from django.http import HttpResponse
-from asgiref.sync import async_to_sync
 import pytz
-from django.contrib import messages
-from users.models import CustomUser
 from django.views.decorators.csrf import csrf_protect
 from django.http import JsonResponse
 
@@ -29,6 +24,8 @@ def chat_room(request, room_name):
         (Q(sender=request.user) & Q(receiver__username=room_name)) |
         (Q(receiver=request.user) & Q(sender__username=room_name))
     )  
+
+    receiver_user = User.objects.get(username=room_name)
 
     chats = chats.order_by('sent_time') 
     user_last_messages = []
@@ -52,6 +49,7 @@ def chat_room(request, room_name):
     # print(chats)
     return render(request, 'translation/chat.html', {
         'room_name': room_name,
+        'receiver_user': receiver_user,
         'chats': chats,
         'users': users,
         'user_last_messages': user_last_messages,
