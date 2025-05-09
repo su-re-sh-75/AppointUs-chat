@@ -123,6 +123,8 @@ document.addEventListener('DOMContentLoaded', function(){
             sendVoiceMessage(base64Audio, voiceFilename, currentUser, roomName);
             voicePopover.classList.add('hidden');
             voiceDivElem.textContent = '';
+            // base64Audio = null;
+            recordedBlob = null;
         } catch (err) {
             console.error("Error converting blob to base64:", err);
         }
